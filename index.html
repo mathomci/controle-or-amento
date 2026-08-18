@@ -3,86 +3,111 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Controle Orçamentário</title>
+<title>Controle Orçamentário · Matheus Homci</title>
 <style>
+  :root {
+    --bg: #f4f6fb;
+    --card: #ffffff;
+    --ink: #1e293b;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --brand: #2563eb;
+    --brand-dark: #1e40af;
+    --green: #16a34a;
+    --green-bg: #dcfce7;
+    --amber: #d97706;
+    --amber-bg: #fef3c7;
+    --red: #dc2626;
+    --red-bg: #fee2e2;
+    --blue-bg: #dbeafe;
+    --slate-bg: #f1f5f9;
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-    background: #f1f5f9;
-    color: #0f172a;
-    padding: 24px;
+    font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 28px 20px;
+    line-height: 1.5;
   }
-  .container { max-width: 1200px; margin: 0 auto; }
+  .container { max-width: 1180px; margin: 0 auto; }
   header {
-    background: linear-gradient(135deg, #0f172a, #1e3a5f);
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #2563eb 130%);
     color: #fff;
-    border-radius: 16px;
-    padding: 24px 28px;
+    border-radius: 18px;
+    padding: 28px 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: 14px;
+    margin-bottom: 22px;
+    box-shadow: 0 8px 24px rgba(15,23,42,0.18);
   }
-  header h1 { font-size: 1.6rem; letter-spacing: 0.5px; }
+  header h1 { font-size: 1.55rem; font-weight: 700; letter-spacing: 0.3px; }
   header .sub { font-size: 0.85rem; opacity: 0.85; margin-top: 4px; }
   .actions { display: flex; align-items: center; gap: 12px; }
   .btn-refresh {
-    background: #2563eb; color: #fff; border: none; border-radius: 8px;
-    padding: 8px 16px; font-size: 0.85rem; cursor: pointer; font-weight: 600;
+    background: rgba(255,255,255,0.14); color: #fff; border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 10px; padding: 9px 16px; font-size: 0.82rem; cursor: pointer;
+    font-weight: 600; backdrop-filter: blur(4px); transition: background .2s;
   }
-  .btn-refresh:hover { background: #1d4ed8; }
-  #status { font-size: 0.8rem; opacity: 0.85; text-align: right; line-height: 1.4; }
+  .btn-refresh:hover { background: rgba(255,255,255,0.24); }
+  #status { font-size: 0.78rem; opacity: 0.85; text-align: right; line-height: 1.5; }
   .section {
-    background: #fff; border-radius: 16px; padding: 20px 24px;
-    margin-bottom: 20px; box-shadow: 0 1px 3px rgba(15,23,42,0.08);
+    background: var(--card); border-radius: 16px; padding: 22px 26px;
+    margin-bottom: 20px; box-shadow: 0 1px 3px rgba(15,23,42,0.07);
+    border: 1px solid var(--line);
   }
   .section h2 {
-    font-size: 1.05rem; color: #0f172a; margin-bottom: 14px;
-    padding-bottom: 10px; border-bottom: 2px solid #e2e8f0;
-    display: flex; align-items: center; gap: 8px;
+    font-size: 1rem; color: var(--ink); margin-bottom: 16px;
+    padding-bottom: 12px; border-bottom: 2px solid var(--line);
+    display: flex; align-items: center; gap: 9px; font-weight: 700;
   }
-  .grid-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+  .grid-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
   .kpi {
-    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;
+    background: var(--slate-bg); border: 1px solid var(--line); border-radius: 14px;
+    padding: 16px 18px; transition: transform .15s, box-shadow .15s;
   }
-  .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.4px; color: #64748b; }
-  .kpi-value { font-size: 1.35rem; font-weight: 700; color: #0f172a; margin: 6px 0 4px; }
-  .kpi-detail { font-size: 0.72rem; color: #64748b; }
+  .kpi:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(15,23,42,0.08); }
+  .kpi-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); font-weight: 600; }
+  .kpi-value { font-size: 1.5rem; font-weight: 800; color: var(--ink); margin: 8px 0 5px; letter-spacing: -0.5px; }
+  .kpi-detail { font-size: 0.72rem; color: var(--muted); }
   .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media (max-width: 900px) { .grid-2col { grid-template-columns: 1fr; } }
-  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  @media (max-width: 920px) { .grid-2col { grid-template-columns: 1fr; } }
+  table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
   th {
-    text-align: left; background: #f1f5f9; color: #475569;
-    padding: 10px 12px; font-size: 0.75rem; text-transform: uppercase;
-    letter-spacing: 0.4px; border-bottom: 2px solid #e2e8f0;
+    text-align: left; background: var(--slate-bg); color: var(--muted);
+    padding: 11px 13px; font-size: 0.72rem; text-transform: uppercase;
+    letter-spacing: 0.5px; border-bottom: 2px solid var(--line); font-weight: 700;
   }
-  td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; }
+  td { padding: 11px 13px; border-bottom: 1px solid var(--line); }
   tr:last-child td { border-bottom: none; }
-  .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
-  .status { padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; display: inline-block; }
-  .st-normal { background: #dcfce7; color: #166534; }
-  .st-alerta { background: #fef3c7; color: #92400e; }
-  .st-critico { background: #fee2e2; color: #991b1b; }
-  .st-livre { background: #dbeafe; color: #1e40af; }
-  .st-aberta { background: #f1f5f9; color: #475569; }
-  .st-recebida { background: #dcfce7; color: #166534; }
-  .st-previsto { background: #dbeafe; color: #1e40af; }
+  tbody tr { transition: background .12s; }
+  tbody tr:hover { background: #fafcff; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+  .status { padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; display: inline-block; }
+  .st-normal { background: var(--green-bg); color: var(--green); }
+  .st-alerta { background: var(--amber-bg); color: var(--amber); }
+  .st-critico { background: var(--red-bg); color: var(--red); }
+  .st-livre { background: var(--blue-bg); color: var(--brand-dark); }
+  .st-aberta { background: var(--slate-bg); color: var(--muted); }
+  .st-recebida { background: var(--green-bg); color: var(--green); }
+  .st-previsto { background: var(--blue-bg); color: var(--brand-dark); }
   .table-wrap { overflow-x: auto; }
   #erro {
-    display: none; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;
-    border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; font-size: 0.9rem;
+    display: none; background: var(--red-bg); color: var(--red); border: 1px solid #fecaca;
+    border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; font-size: 0.88rem;
   }
   .footer {
-    text-align: center; color: #94a3b8; font-size: 0.75rem; padding: 16px 0 8px;
+    text-align: center; color: #94a3b8; font-size: 0.74rem; padding: 18px 0 6px;
   }
   @media print {
     body { background: #fff; padding: 0; }
     @page { size: A4 landscape; margin: 10mm; }
-    header { border-radius: 0; }
-    .btn-refresh, .actions button { display: none !important; }
-    .section { box-shadow: none; border: 1px solid #e2e8f0; break-inside: avoid; }
+    header { border-radius: 0; box-shadow: none; }
+    .btn-refresh { display: none !important; }
+    .section { box-shadow: none; break-inside: avoid; }
     .grid-2col { grid-template-columns: 1fr 1fr; }
   }
 </style>
@@ -92,7 +117,7 @@
   <header>
     <div>
       <h1>💰 Controle Orçamentário</h1>
-      <div class="sub">Matheus Homci · Dashboard pessoal</div>
+      <div class="sub">Matheus Homci · Dashboard pessoal · Dados atualizados da planilha</div>
     </div>
     <div class="actions">
       <button class="btn-refresh" onclick="carregarDados()">↻ Atualizar dados</button>
@@ -133,7 +158,7 @@
     <div class="table-wrap" id="investimentos"><p style="color:#94a3b8">Carregando…</p></div>
   </div>
 
-  <div class="footer">Dados lidos direto do Google Sheets (sem proxy) · Atualize a página ou clique em "Atualizar dados" para ver mudanças</div>
+  <div class="footer">Dados lidos direto do Google Sheets · Atualize a página ou clique em "Atualizar dados"</div>
 </div>
 
 <script>
@@ -141,8 +166,6 @@
 // CONFIGURAÇÃO
 // ═══════════════════════════════════════════════════════════
 const SPREADSHEET_ID = '15ZYqQOn-xx-GndQTTWkYRY9R0c0bMyLPs6gKlW_3ZpQ';
-
-// Abas da planilha (gid de cada uma)
 const ABAS = {
   resumo:        { gid: '0' },
   limites:       { gid: '541806221' },
@@ -152,27 +175,28 @@ const ABAS = {
   investimentos: { gid: '1278202952' }
 };
 
-// Links CSV publicados (usados só como reserva, se a API do Google falhar)
-const CSV_LINKS = {
-  resumo:        'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=0&single=true&output=csv',
-  limites:       'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=541806221&single=true&output=csv',
-  faturas:       'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=2070944204&single=true&output=csv',
-  entradas:      'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=1171372127&single=true&output=csv',
-  cronograma:    'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=1731209628&single=true&output=csv',
-  investimentos: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=1278202952&single=true&output=csv'
-};
-
-// Proxies CORS (só para o caminho de reserva)
-const PROXIES = [
-  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
-  u => 'https://corsproxy.io/?url=' + encodeURIComponent(u)
-];
-
 // ── Utilitários ────────────────────────────────────────────
+function limparValor(v) {
+  if (v == null) return '';
+  return String(v).trim();
+}
+
+// Converte "R$ 1.234,56", "137,73", "81,3%", "840" em número
 function paraNumero(v) {
   if (v == null) return NaN;
-  let s = String(v).trim().replace(/R\$\s?/g, '').replace(/\./g, '').replace(/,/g, '.');
-  if (s.endsWith('%')) s = s.slice(0, -1);
+  let s = String(v).trim();
+  if (!s) return NaN;
+  // remove "R$", espaços e o símbolo de %
+  s = s.replace(/R\$\s?/gi, '').replace(/%/g, '').trim();
+  // detecta se usa vírgula como decimal
+  const temVirgula = s.includes(',');
+  const temPonto = s.includes('.');
+  if (temVirgula && temPonto) {
+    // "1.234,56" -> remove pontos (milhar), troca vírgula por ponto
+    s = s.replace(/\./g, '').replace(',', '.');
+  } else if (temVirgula) {
+    s = s.replace(',', '.');
+  }
   const n = parseFloat(s);
   return isNaN(n) ? NaN : n;
 }
@@ -187,7 +211,7 @@ function escapar(s) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-// ── Fonte 1: Google Visualization via JSONP (sem CORS, sem proxy) ──
+// ── Fonte: Google Visualization via JSONP (sem CORS, sem proxy) ──
 let seqJsonp = 0;
 function buscarViaGviz(gid) {
   return new Promise(function (resolve) {
@@ -226,68 +250,34 @@ function tabelaDeResposta(resposta) {
   });
 }
 
-// ── Fonte 2 (reserva): CSV via proxy ──
-function parseCSV(texto) {
-  const linhas = [];
-  let linha = [], celula = '', emAspas = false;
-  for (let i = 0; i < texto.length; i++) {
-    const c = texto[i];
-    if (emAspas) {
-      if (c === '"') {
-        if (texto[i + 1] === '"') { celula += '"'; i++; }
-        else emAspas = false;
-      } else celula += c;
-    } else {
-      if (c === '"') emAspas = true;
-      else if (c === ',') { linha.push(celula); celula = ''; }
-      else if (c === '\n') { linha.push(celula); linhas.push(linha); linha = []; celula = ''; }
-      else if (c !== '\r') celula += c;
-    }
-  }
-  if (celula.length || linha.length) { linha.push(celula); linhas.push(linha); }
-  return linhas.filter(l => l.some(v => String(v).trim() !== ''));
-}
-
-async function buscarCSV(url) {
-  let ultimoErro;
-  for (const proxy of PROXIES) {
-    try {
-      const res = await fetch(proxy(url));
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      return await res.text();
-    } catch (e) { ultimoErro = e; }
-  }
-  throw ultimoErro;
-}
-
-// Busca uma aba: tenta JSONP (direto) e cai para CSV via proxy se falhar
-async function obterLinhas(chave, aba) {
-  const viaGviz = await buscarViaGviz(aba.gid);
-  const tabela = tabelaDeResposta(viaGviz);
-  if (tabela.length > 0) return tabela;
-  try {
-    const texto = await buscarCSV(CSV_LINKS[chave]);
-    const linhas = parseCSV(texto);
-    if (linhas.length > 0) return linhas;
-  } catch (e) { /* segue */ }
-  return [];
+async function obterLinhas(gid) {
+  const viaGviz = await buscarViaGviz(gid);
+  return tabelaDeResposta(viaGviz);
 }
 
 // ── Renderização ───────────────────────────────────────────
 function renderResumo(rows) {
   const cards = [];
   for (let i = 1; i < rows.length; i++) {
-    const [label, rawVal, detail] = rows[i];
-    const isPct = /%/.test(String(rawVal || ''));
-    const n = paraNumero(rawVal);
-    const display = isPct
-      ? (isNaN(n) ? escapar(rawVal) : n.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%')
-      : formatarBRL(n);
+    const label = limparValor(rows[i][0]);
+    const rawVal = limparValor(rows[i][1]);
+    const detail = limparValor(rows[i][2]);
+    if (!label) continue;
+    // Detecta se o valor é percentual (contém %)
+    const isPct = /%/.test(String(rows[i][1] || ''));
+    let display;
+    if (isPct) {
+      const n = paraNumero(rawVal);
+      display = isNaN(n) ? escapar(rawVal) : n.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%';
+    } else {
+      const n = paraNumero(rawVal);
+      display = isNaN(n) ? escapar(rawVal) : formatarBRL(n);
+    }
     cards.push('<div class="kpi"><div class="kpi-label">' + escapar(label) +
       '</div><div class="kpi-value">' + display +
-      '</div><div class="kpi-detail">' + escapar(detail || '') + '</div></div>');
+      '</div><div class="kpi-detail">' + escapar(detail) + '</div></div>');
   }
-  document.getElementById('kpis').innerHTML = cards.join('');
+  document.getElementById('kpis').innerHTML = cards.join('') || '<p style="color:#94a3b8">Sem dados</p>';
 }
 
 function classeStatus(s) {
@@ -368,7 +358,7 @@ async function carregarDados() {
 
   const resultados = await Promise.all(
     secoes.map(async s => {
-      const linhas = await obterLinhas(s.chave, ABAS[s.chave]);
+      const linhas = await obterLinhas(ABAS[s.chave].gid);
       if (linhas.length > 0) {
         document.getElementById(s.el).innerHTML = s.fn(linhas);
         return true;
@@ -387,8 +377,8 @@ async function carregarDados() {
     statusEl.innerHTML = 'Atualizado: ' + agora + '<br><span style="color:#fca5a5">' + (secoes.length - ok) + ' de ' + secoes.length + ' seções falharam</span>';
     erroEl.style.display = 'block';
     erroEl.innerHTML = '⚠️ Não foi possível carregar ' + (secoes.length - ok) + ' de ' + secoes.length + ' seções. ' +
-      'Clique em "Atualizar dados" para tentar de novo. Se persistir, verifique se a planilha continua publicada ' +
-      '(Arquivo → Compartilhar → Publicar na web).';
+      'Clique em "Atualizar dados" para tentar de novo. Se persistir, confirme que a planilha está compartilhada como ' +
+      '"Qualquer pessoa com o link" (Leitor).';
   }
 }
 
