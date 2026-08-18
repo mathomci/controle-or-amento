@@ -33,9 +33,7 @@
     padding: 8px 16px; font-size: 0.85rem; cursor: pointer; font-weight: 600;
   }
   .btn-refresh:hover { background: #1d4ed8; }
-  #status {
-    font-size: 0.8rem; opacity: 0.85; text-align: right; line-height: 1.4;
-  }
+  #status { font-size: 0.8rem; opacity: 0.85; text-align: right; line-height: 1.4; }
   .section {
     background: #fff; border-radius: 16px; padding: 20px 24px;
     margin-bottom: 20px; box-shadow: 0 1px 3px rgba(15,23,42,0.08);
@@ -44,10 +42,6 @@
     font-size: 1.05rem; color: #0f172a; margin-bottom: 14px;
     padding-bottom: 10px; border-bottom: 2px solid #e2e8f0;
     display: flex; align-items: center; gap: 8px;
-  }
-  .section h2 .badge {
-    font-size: 0.7rem; background: #e2e8f0; color: #475569;
-    padding: 2px 8px; border-radius: 20px; font-weight: 600;
   }
   .grid-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
   .kpi {
@@ -139,31 +133,100 @@
     <div class="table-wrap" id="investimentos"><p style="color:#94a3b8">Carregando…</p></div>
   </div>
 
-  <div class="footer">Dados carregados automaticamente da planilha publicada · Atualize a página ou clique em "Atualizar dados" para ver mudanças</div>
+  <div class="footer">Dados lidos direto do Google Sheets (sem proxy) · Atualize a página ou clique em "Atualizar dados" para ver mudanças</div>
 </div>
 
 <script>
 // ═══════════════════════════════════════════════════════════
-// CONFIGURAÇÃO — Links CSV publicados (cada aba da planilha)
-// Se um dia republicar a planilha, basta trocar os links aqui.
+// CONFIGURAÇÃO
 // ═══════════════════════════════════════════════════════════
-const SHEETS = {
-  resumo:       'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=0&single=true&output=csv',
-  limites:      'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=541806221&single=true&output=csv',
-  faturas:      'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=2070944204&single=true&output=csv',
-  entradas:     'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=1171372127&single=true&output=csv',
-  cronograma:   'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=1731209628&single=true&output=csv',
-  investimentos:'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=1278202952&single=true&output=csv'
+const SPREADSHEET_ID = '15ZYqQOn-xx-GndQTTWkYRY9R0c0bMyLPs6gKlW_3ZpQ';
+
+// Abas da planilha (gid de cada uma)
+const ABAS = {
+  resumo:        { gid: '0' },
+  limites:       { gid: '541806221' },
+  faturas:       { gid: '2070944204' },
+  entradas:      { gid: '1171372127' },
+  cronograma:    { gid: '1731209628' },
+  investimentos: { gid: '1278202952' }
 };
 
-// Proxies CORS — contornam a restrição de segurança do navegador.
-// Tenta cada um em ordem até conseguir.
+// Links CSV publicados (usados só como reserva, se a API do Google falhar)
+const CSV_LINKS = {
+  resumo:        'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=0&single=true&output=csv',
+  limites:       'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=541806221&single=true&output=csv',
+  faturas:       'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=2070944204&single=true&output=csv',
+  entradas:      'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=1171372127&single=true&output=csv',
+  cronograma:    'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=1731209628&single=true&output=csv',
+  investimentos: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=1278202952&single=true&output=csv'
+};
+
+// Proxies CORS (só para o caminho de reserva)
 const PROXIES = [
   u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
   u => 'https://corsproxy.io/?url=' + encodeURIComponent(u)
 ];
 
 // ── Utilitários ────────────────────────────────────────────
+function paraNumero(v) {
+  if (v == null) return NaN;
+  let s = String(v).trim().replace(/R\$\s?/g, '').replace(/\./g, '').replace(/,/g, '.');
+  if (s.endsWith('%')) s = s.slice(0, -1);
+  const n = parseFloat(s);
+  return isNaN(n) ? NaN : n;
+}
+
+function formatarBRL(n) {
+  if (isNaN(n)) return '—';
+  return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function escapar(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ── Fonte 1: Google Visualization via JSONP (sem CORS, sem proxy) ──
+let seqJsonp = 0;
+function buscarViaGviz(gid) {
+  return new Promise(function (resolve) {
+    const nome = 'cbGviz' + (++seqJsonp);
+    const url = 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID +
+      '/gviz/tq?gid=' + gid + '&tqx=out:json;responseHandler:' + nome;
+    let concluido = false;
+    function limpar() {
+      if (concluido) return;
+      concluido = true;
+      clearTimeout(timer);
+      try { delete window[nome]; } catch (e) { window[nome] = undefined; }
+      const el = document.getElementById('jsonp-' + nome);
+      if (el) el.remove();
+    }
+    const timer = setTimeout(function () { limpar(); resolve(null); }, 15000);
+    window[nome] = function (resposta) { limpar(); resolve(resposta); };
+    const s = document.createElement('script');
+    s.id = 'jsonp-' + nome;
+    s.src = url;
+    s.onerror = function () { limpar(); resolve(null); };
+    document.head.appendChild(s);
+  });
+}
+
+function tabelaDeResposta(resposta) {
+  if (!resposta || resposta.status !== 'ok' || !resposta.table) return [];
+  const linhas = resposta.table.rows || [];
+  return linhas.map(function (r) {
+    const celulas = r.c || [];
+    return celulas.map(function (cel) {
+      if (cel && cel.v !== null && cel.v !== undefined) return cel.v;
+      if (cel && cel.f !== undefined) return cel.f;
+      return '';
+    });
+  });
+}
+
+// ── Fonte 2 (reserva): CSV via proxy ──
 function parseCSV(texto) {
   const linhas = [];
   let linha = [], celula = '', emAspas = false;
@@ -185,24 +248,6 @@ function parseCSV(texto) {
   return linhas.filter(l => l.some(v => String(v).trim() !== ''));
 }
 
-function paraNumero(v) {
-  if (v == null) return NaN;
-  let s = String(v).trim().replace(/R\$\s?/g, '').replace(/\./g, '').replace(/,/g, '.');
-  if (s.endsWith('%')) s = s.slice(0, -1);
-  const n = parseFloat(s);
-  return isNaN(n) ? NaN : n;
-}
-
-function formatarBRL(n) {
-  if (isNaN(n)) return '—';
-  return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function escapar(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
 async function buscarCSV(url) {
   let ultimoErro;
   for (const proxy of PROXIES) {
@@ -215,12 +260,25 @@ async function buscarCSV(url) {
   throw ultimoErro;
 }
 
-// ── Renderização por seção ─────────────────────────────────
+// Busca uma aba: tenta JSONP (direto) e cai para CSV via proxy se falhar
+async function obterLinhas(chave, aba) {
+  const viaGviz = await buscarViaGviz(aba.gid);
+  const tabela = tabelaDeResposta(viaGviz);
+  if (tabela.length > 0) return tabela;
+  try {
+    const texto = await buscarCSV(CSV_LINKS[chave]);
+    const linhas = parseCSV(texto);
+    if (linhas.length > 0) return linhas;
+  } catch (e) { /* segue */ }
+  return [];
+}
+
+// ── Renderização ───────────────────────────────────────────
 function renderResumo(rows) {
   const cards = [];
   for (let i = 1; i < rows.length; i++) {
     const [label, rawVal, detail] = rows[i];
-    const isPct = /%/.test(rawVal || '');
+    const isPct = /%/.test(String(rawVal || ''));
     const n = paraNumero(rawVal);
     const display = isPct
       ? (isNaN(n) ? escapar(rawVal) : n.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%')
@@ -233,7 +291,7 @@ function renderResumo(rows) {
 }
 
 function classeStatus(s) {
-  const v = (s || '').toLowerCase();
+  const v = String(s || '').toLowerCase();
   if (v.includes('normal')) return 'st-normal';
   if (v.includes('alert')) return 'st-alerta';
   if (v.includes('crí') || v.includes('crit')) return 'st-critico';
@@ -244,18 +302,22 @@ function classeStatus(s) {
   return 'st-aberta';
 }
 
+function montarTabela(head, body) {
+  return '<table><thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody></table>';
+}
+
 function renderTabela(rows, colunasNumericas) {
   if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
   const head = rows[0].map(h => '<th>' + escapar(h) + '</th>').join('');
   const body = rows.slice(1).map(r => {
     return '<tr>' + r.map((c, idx) => {
-      const num = colunasNumericas.includes(idx) && paraNumero(c) !== NaN;
-      const cls = num ? ' class="num"' : '';
-      const txt = num ? formatarBRL(paraNumero(c)) : escapar(c);
+      const ehNum = colunasNumericas.includes(idx) && !isNaN(paraNumero(c));
+      const cls = ehNum ? ' class="num"' : '';
+      const txt = ehNum ? formatarBRL(paraNumero(c)) : escapar(c);
       return '<td' + cls + '>' + txt + '</td>';
     }).join('') + '</tr>';
   }).join('');
-  return '<table><thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody></table>';
+  return montarTabela(head, body);
 }
 
 function renderStatus(rows, idxStatus) {
@@ -270,7 +332,7 @@ function renderStatus(rows, idxStatus) {
       return '<td>' + escapar(c) + '</td>';
     }).join('') + '</tr>';
   }).join('');
-  return '<table><thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody></table>';
+  return montarTabela(head, body);
 }
 
 function renderCronograma(rows) {
@@ -279,11 +341,13 @@ function renderCronograma(rows) {
   const body = rows.slice(1).map(r => {
     return '<tr>' + r.map((c, idx) => {
       if (idx === 0) return '<td><strong>' + escapar(c) + '</strong></td>';
-      if (idx === 1 && paraNumero(c) !== NaN && !/variável/i.test(c)) return '<td class="num">' + formatarBRL(paraNumero(c)) + '</td>';
+      if (idx === 1 && !isNaN(paraNumero(c)) && !/variável/i.test(String(c))) {
+        return '<td class="num">' + formatarBRL(paraNumero(c)) + '</td>';
+      }
       return '<td>' + escapar(c) + '</td>';
     }).join('') + '</tr>';
   }).join('');
-  return '<table><thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody></table>';
+  return montarTabela(head, body);
 }
 
 // ── Orquestrador principal ─────────────────────────────────
@@ -293,32 +357,38 @@ async function carregarDados() {
   erroEl.style.display = 'none';
   statusEl.innerHTML = 'Carregando dados…';
 
-  const alvos = [
-    { chave: 'resumo',       fn: rows => renderResumo(rows) },
-    { chave: 'limites',      fn: rows => renderStatus(rows, 4) },
-    { chave: 'faturas',      fn: rows => renderStatus(rows, 3) },
-    { chave: 'entradas',     fn: rows => renderStatus(rows, 3) },
-    { chave: 'cronograma',   fn: rows => renderCronograma(rows) },
-    { chave: 'investimentos',fn: rows => renderTabela(rows, [1]) }
+  const secoes = [
+    { chave: 'resumo',        el: 'kpis',          fn: renderResumo },
+    { chave: 'limites',       el: 'limites',       fn: r => renderStatus(r, 4) },
+    { chave: 'faturas',       el: 'faturas',       fn: r => renderStatus(r, 3) },
+    { chave: 'entradas',      el: 'entradas',      fn: r => renderStatus(r, 3) },
+    { chave: 'cronograma',    el: 'cronograma',    fn: renderCronograma },
+    { chave: 'investimentos', el: 'investimentos', fn: r => renderTabela(r, [1]) }
   ];
 
-  const resultados = await Promise.allSettled(
-    alvos.map(a => buscarCSV(SHEETS[a.chave]).then(texto => {
-      const rows = parseCSV(texto);
-      a.fn(rows);
-    }))
+  const resultados = await Promise.all(
+    secoes.map(async s => {
+      const linhas = await obterLinhas(s.chave, ABAS[s.chave]);
+      if (linhas.length > 0) {
+        document.getElementById(s.el).innerHTML = s.fn(linhas);
+        return true;
+      }
+      document.getElementById(s.el).innerHTML = '<p style="color:#94a3b8">Falha ao carregar</p>';
+      return false;
+    })
   );
 
-  const falhas = resultados.filter(r => r.status === 'rejected').length;
+  const ok = resultados.filter(Boolean).length;
   const agora = new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
-  if (falhas > 0) {
-    statusEl.innerHTML = 'Atualizado: ' + agora + '<br><span style="color:#fca5a5">' + falhas + ' de 6 seções falharam</span>';
-    erroEl.style.display = 'block';
-    erroEl.innerHTML = '⚠️ Não foi possível carregar todas as seções (' + falhas + ' de 6). ' +
-      'Isso costuma acontecer quando o proxy CORS gratuito está temporariamente limitado. ' +
-      'Clique em "Atualizar dados" para tentar de novo, ou recarregue a página.';
-  } else {
+
+  if (ok === secoes.length) {
     statusEl.innerHTML = '✓ Atualizado: ' + agora;
+  } else {
+    statusEl.innerHTML = 'Atualizado: ' + agora + '<br><span style="color:#fca5a5">' + (secoes.length - ok) + ' de ' + secoes.length + ' seções falharam</span>';
+    erroEl.style.display = 'block';
+    erroEl.innerHTML = '⚠️ Não foi possível carregar ' + (secoes.length - ok) + ' de ' + secoes.length + ' seções. ' +
+      'Clique em "Atualizar dados" para tentar de novo. Se persistir, verifique se a planilha continua publicada ' +
+      '(Arquivo → Compartilhar → Publicar na web).';
   }
 }
 
