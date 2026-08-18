@@ -1,191 +1,328 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Financeiro — Matheus Salomão Homci</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<title>Controle Orçamentário</title>
 <style>
-:root{--bg:#0a0e1a;--card:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.1);--txt:#fff;--txt2:#94a3b8;--blue:#38bdf8;--green:#4ade80;--red:#f87171;--purple:#a78bfa;--orange:#fb923c}
-*{margin:0;padding:0;box-sizing:border-box}
-html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;line-height:1.6;padding:20px;overflow-x:hidden}
-.container{max-width:1400px;margin:0 auto}
-header{margin-bottom:30px;text-align:center;padding:20px 0}
-header h1{font-size:28px;font-weight:700;background:linear-gradient(90deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:5px}
-header p{color:var(--txt2);font-size:14px}
-.badge-sc{display:inline-block;background:rgba(56,189,248,0.15);color:var(--blue);padding:4px 12px;border-radius:20px;font-weight:600;font-size:12px;margin-top:8px;border:1px solid rgba(56,189,248,0.3)}
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:30px}
-.card{background:var(--card);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:16px;padding:24px;transition:transform .3s,box-shadow .3s}
-.card:hover{transform:translateY(-5px);box-shadow:0 10px 30px rgba(0,0,0,.5)}
-.kpi-card h3{font-size:12px;color:var(--txt2);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
-.kpi-card .value{font-size:28px;font-weight:700;margin-bottom:5px}
-.kpi-card .subtext{font-size:11px;color:var(--txt2)}
-.liq-card{background:linear-gradient(135deg,rgba(56,189,248,.1),rgba(167,139,250,.1));border:1px solid rgba(167,139,250,.3);margin-bottom:30px}
-.prog{width:100%;height:10px;background:rgba(255,255,255,.1);border-radius:5px;margin:12px 0;overflow:hidden}
-.prog-fill{height:100%;border-radius:5px;transition:width 1s}
-.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-bottom:30px}
-.cc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
-.cc-limit{display:flex;justify-content:space-between;font-size:12px;margin-top:5px;color:var(--txt2)}
-.tbl-wrap{width:100%;overflow-x:auto;background:var(--card);border-radius:16px;border:1px solid var(--border);margin-bottom:30px}
-table{width:100%;border-collapse:collapse;min-width:600px}
-th{text-align:left;padding:12px;background:rgba(255,255,255,.05);color:var(--txt2);font-size:12px;text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--border)}
-td{padding:12px;border-bottom:1px solid var(--border);font-size:13px}
-tr:last-child td{border-bottom:none}
-.badge{padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase}
-.bg-green{background:rgba(74,222,128,.2);color:var(--green)}.bg-blue{background:rgba(56,189,248,.2);color:var(--blue)}
-.bg-red{background:rgba(248,113,113,.2);color:var(--red)}.bg-orange{background:rgba(251,146,60,.2);color:var(--orange)}
-.bg-grey{background:rgba(148,163,184,.2);color:#94a3b8}
-.inv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-bottom:30px}
-.alert-box{background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.4);color:var(--orange);padding:20px;border-radius:16px;margin-bottom:30px;display:flex;align-items:center;gap:15px;font-size:13px}
-.hl-row{background:rgba(167,139,250,.05);font-weight:600}
-.sec-title{font-size:18px;font-weight:600;margin-bottom:20px;margin-top:10px}
-.tbl-pair{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px}
-@media(max-width:768px){.tbl-pair{grid-template-columns:1fr}}
-.bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-.bar-label{width:70px;font-size:12px;color:var(--txt2);font-weight:600;text-align:right;flex-shrink:0}
-.bar-track{flex:1;height:22px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden;position:relative}
-.bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:11px;font-weight:700;color:#0a0e1a;min-width:0}
-.bar-val{width:90px;font-size:12px;color:var(--txt);font-weight:600;flex-shrink:0}
-footer{text-align:center;padding:40px 0;color:var(--txt2);font-size:12px;border-top:1px solid var(--border);margin-top:40px}
-
-/* ===== OTIMIZAÇÃO PARA IMPRESSÃO / PDF ===== */
-@page{size:A4 landscape;margin:1mm}
-@media print{
-  body{background:#0a0e1a;padding:0;color:var(--txt)}
-  .container{max-width:100%}
-  .card,.tbl-wrap,.inv-grid,.alert-box,.liq-card{break-inside:avoid;page-break-inside:avoid}
-  /* Títulos ficam na MESMA página do conteúdo que referenciam */
-  .sec-title{break-after:avoid;page-break-after:avoid}
-  .kpi-grid{grid-template-columns:repeat(4,1fr);gap:10px}
-  .cards-grid{grid-template-columns:repeat(4,1fr);gap:10px}
-  .tbl-pair{grid-template-columns:1fr 1fr;gap:10px}
-  table{min-width:0;font-size:11px}
-  th,td{padding:6px 8px}
-  .bar-row{margin-bottom:6px}
-  .bar-fill{font-size:10px}
-  .card:hover{transform:none;box-shadow:none}
-  .sec-title{font-size:15px;margin-bottom:12px;margin-top:8px}
-  header{margin-bottom:15px;padding:10px 0}
-  header h1{font-size:22px}
-  footer{margin-top:20px;padding:15px 0}
-  .prog-fill{transition:none}
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    background: #f1f5f9;
+    color: #0f172a;
+    padding: 24px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header {
+    background: linear-gradient(135deg, #0f172a, #1e3a5f);
+    color: #fff;
+    border-radius: 16px;
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  header h1 { font-size: 1.6rem; letter-spacing: 0.5px; }
+  header .sub { font-size: 0.85rem; opacity: 0.85; margin-top: 4px; }
+  .actions { display: flex; align-items: center; gap: 12px; }
+  .btn-refresh {
+    background: #2563eb; color: #fff; border: none; border-radius: 8px;
+    padding: 8px 16px; font-size: 0.85rem; cursor: pointer; font-weight: 600;
+  }
+  .btn-refresh:hover { background: #1d4ed8; }
+  #status {
+    font-size: 0.8rem; opacity: 0.85; text-align: right; line-height: 1.4;
+  }
+  .section {
+    background: #fff; border-radius: 16px; padding: 20px 24px;
+    margin-bottom: 20px; box-shadow: 0 1px 3px rgba(15,23,42,0.08);
+  }
+  .section h2 {
+    font-size: 1.05rem; color: #0f172a; margin-bottom: 14px;
+    padding-bottom: 10px; border-bottom: 2px solid #e2e8f0;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section h2 .badge {
+    font-size: 0.7rem; background: #e2e8f0; color: #475569;
+    padding: 2px 8px; border-radius: 20px; font-weight: 600;
+  }
+  .grid-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+  .kpi {
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;
+  }
+  .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.4px; color: #64748b; }
+  .kpi-value { font-size: 1.35rem; font-weight: 700; color: #0f172a; margin: 6px 0 4px; }
+  .kpi-detail { font-size: 0.72rem; color: #64748b; }
+  .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 900px) { .grid-2col { grid-template-columns: 1fr; } }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th {
+    text-align: left; background: #f1f5f9; color: #475569;
+    padding: 10px 12px; font-size: 0.75rem; text-transform: uppercase;
+    letter-spacing: 0.4px; border-bottom: 2px solid #e2e8f0;
+  }
+  td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; }
+  tr:last-child td { border-bottom: none; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .status { padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; display: inline-block; }
+  .st-normal { background: #dcfce7; color: #166534; }
+  .st-alerta { background: #fef3c7; color: #92400e; }
+  .st-critico { background: #fee2e2; color: #991b1b; }
+  .st-livre { background: #dbeafe; color: #1e40af; }
+  .st-aberta { background: #f1f5f9; color: #475569; }
+  .st-recebida { background: #dcfce7; color: #166534; }
+  .st-previsto { background: #dbeafe; color: #1e40af; }
+  .table-wrap { overflow-x: auto; }
+  #erro {
+    display: none; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;
+    border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; font-size: 0.9rem;
+  }
+  .footer {
+    text-align: center; color: #94a3b8; font-size: 0.75rem; padding: 16px 0 8px;
+  }
+  @media print {
+    body { background: #fff; padding: 0; }
+    @page { size: A4 landscape; margin: 10mm; }
+    header { border-radius: 0; }
+    .btn-refresh, .actions button { display: none !important; }
+    .section { box-shadow: none; border: 1px solid #e2e8f0; break-inside: avoid; }
+    .grid-2col { grid-template-columns: 1fr 1fr; }
+  }
 </style>
 </head>
 <body>
 <div class="container">
-<header>
-<h1>Controle Orçamentário Pessoal</h1>
-<p>Matheus Salomão Homci — Atualizado em 18/08/2026</p>
-<span class="badge-sc">Cenário: Agosto/Setembro 2026</span>
-</header>
+  <header>
+    <div>
+      <h1>💰 Controle Orçamentário</h1>
+      <div class="sub">Matheus Homci · Dashboard pessoal</div>
+    </div>
+    <div class="actions">
+      <button class="btn-refresh" onclick="carregarDados()">↻ Atualizar dados</button>
+      <div id="status">Carregando dados…</div>
+    </div>
+  </header>
 
-<div class="kpi-grid">
-<div class="card kpi-card"><h3>Saldo em Contas</h3><div class="value" style="color:var(--blue)">R$ 923,65</div><div class="subtext">Bradesco R$ 923,65 + Inter R$ 0,00 + MP R$ 0,00</div></div>
-<div class="card kpi-card"><h3>Liquidez Real Projetada 04/09</h3><div class="value" style="color:var(--green)">R$ 400,74</div><div class="subtext">Após faturas Setembro + repasses PIX</div></div>
-<div class="card kpi-card"><h3>Limite Conjugado Disponível</h3><div class="value" style="color:var(--purple)">R$ 2.348,07</div><div class="subtext">De R$ 5.465,00 total (43,0%)</div></div>
-<div class="card kpi-card"><h3>Total Faturas Setembro</h3><div class="value" style="color:var(--red)">R$ 1.187,43</div><div class="subtext">Bradesco R$ 749,79 + MP R$ 137,73 + Inter R$ 299,91</div></div>
+  <div id="erro"></div>
+
+  <div class="section">
+    <h2>📌 Resumo Geral</h2>
+    <div class="grid-kpis" id="kpis"><p style="color:#94a3b8">Carregando…</p></div>
+  </div>
+
+  <div class="grid-2col">
+    <div class="section">
+      <h2>💳 Limites dos Cartões</h2>
+      <div class="table-wrap" id="limites"><p style="color:#94a3b8">Carregando…</p></div>
+    </div>
+    <div class="section">
+      <h2>🧾 Faturas do Mês</h2>
+      <div class="table-wrap" id="faturas"><p style="color:#94a3b8">Carregando…</p></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>📥 Entradas</h2>
+    <div class="table-wrap" id="entradas"><p style="color:#94a3b8">Carregando…</p></div>
+  </div>
+
+  <div class="section">
+    <h2>📅 Cronograma de Parcelamentos</h2>
+    <div class="table-wrap" id="cronograma"><p style="color:#94a3b8">Carregando…</p></div>
+  </div>
+
+  <div class="section">
+    <h2>📈 Investimentos</h2>
+    <div class="table-wrap" id="investimentos"><p style="color:#94a3b8">Carregando…</p></div>
+  </div>
+
+  <div class="footer">Dados carregados automaticamente da planilha publicada · Atualize a página ou clique em "Atualizar dados" para ver mudanças</div>
 </div>
 
-<div class="card liq-card">
-<h3 class="sec-title">Análise de Liquidez e Comprometimento</h3>
-<div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:14px"><span>Margem Livre: <strong>R$ 923,65</strong></span><span>Comprometimento: <strong style="color:var(--red)">81,3%</strong></span></div>
-<div class="prog"><div class="prog-fill" style="width:81.3%;background:linear-gradient(90deg,var(--orange),var(--red))"></div></div>
-<p style="font-size:12px;color:var(--txt2);font-family:monospace">(R$ 923,65 + R$ 1.224,31) − (R$ 749,79 + R$ 137,73 + R$ 299,91 + R$ 559,79) = R$ 400,74</p>
-</div>
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONFIGURAÇÃO — Links CSV publicados (cada aba da planilha)
+// Se um dia republicar a planilha, basta trocar os links aqui.
+// ═══════════════════════════════════════════════════════════
+const SHEETS = {
+  resumo:       'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=0&single=true&output=csv',
+  limites:      'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=541806221&single=true&output=csv',
+  faturas:      'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=2070944204&single=true&output=csv',
+  entradas:     'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=1171372127&single=true&output=csv',
+  cronograma:   'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=1731209628&single=true&output=csv',
+  investimentos:'https://docs.google.com/spreadsheets/d/e/2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S/pub?gid=1278202952&single=true&output=csv'
+};
 
-<div class="alert-box">
-<span style="font-size:24px">⚠️</span>
-<div><strong>Limites em atenção:</strong> Mercado Pago (apenas R$ 166,28 disponíveis — 11,9%) e Inter (apenas R$ 88,60 disponíveis — 11,1%). Bradesco corrigido para R$ 1.778,19 disponíveis (60,3%).</div>
-</div>
+// Proxies CORS — contornam a restrição de segurança do navegador.
+// Tenta cada um em ordem até conseguir.
+const PROXIES = [
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => 'https://corsproxy.io/?url=' + encodeURIComponent(u)
+];
 
-<h3 class="sec-title">Gestão de Crédito</h3>
-<div class="cards-grid">
-<div class="card"><div class="cc-head"><strong>Bradesco Visa</strong><span class="badge bg-blue">Em Construção</span></div><div class="value">R$ 749,79</div><div class="subtext" style="font-size:12px;color:var(--txt2)">Fatura Setembro | Venc: 10/09</div><div class="prog"><div class="prog-fill" style="width:39.7%;background:var(--blue)"></div></div><div class="cc-limit"><span>Uso: 39,7%</span><span>Disp: R$ 1.778,19 / R$ 2.950,00</span></div></div>
-<div class="card"><div class="cc-head"><strong>Inter Mastercard</strong><span class="badge bg-red">Alerta</span></div><div class="value">R$ 299,91</div><div class="subtext" style="font-size:12px;color:var(--txt2)">Fatura Setembro | Venc: 12/09</div><div class="prog"><div class="prog-fill" style="width:88.9%;background:var(--red)"></div></div><div class="cc-limit"><span>Uso: 88,9%</span><span>Disp: R$ 88,60 / R$ 800,00</span></div></div>
-<div class="card"><div class="cc-head"><strong>Mercado Pago Visa</strong><span class="badge bg-orange">Crítico</span></div><div class="value">R$ 137,73</div><div class="subtext" style="font-size:12px;color:var(--txt2)">Fatura Setembro | Venc: 10/09</div><div class="prog"><div class="prog-fill" style="width:88.1%;background:var(--orange)"></div></div><div class="cc-limit"><span>Uso: 88,1%</span><span>Disp: R$ 166,28 / R$ 1.400,00</span></div></div>
-<div class="card"><div class="cc-head"><strong>Nubank Mastercard</strong><span class="badge bg-grey">Inativo</span></div><div class="value">R$ 0,00</div><div class="subtext" style="font-size:12px;color:var(--txt2)">Sem uso</div><div class="prog"><div class="prog-fill" style="width:0%;background:var(--txt2)"></div></div><div class="cc-limit"><span>Uso: 0%</span><span>Disp: R$ 315,00 / R$ 315,00</span></div></div>
-</div>
+// ── Utilitários ────────────────────────────────────────────
+function parseCSV(texto) {
+  const linhas = [];
+  let linha = [], celula = '', emAspas = false;
+  for (let i = 0; i < texto.length; i++) {
+    const c = texto[i];
+    if (emAspas) {
+      if (c === '"') {
+        if (texto[i + 1] === '"') { celula += '"'; i++; }
+        else emAspas = false;
+      } else celula += c;
+    } else {
+      if (c === '"') emAspas = true;
+      else if (c === ',') { linha.push(celula); celula = ''; }
+      else if (c === '\n') { linha.push(celula); linhas.push(linha); linha = []; celula = ''; }
+      else if (c !== '\r') celula += c;
+    }
+  }
+  if (celula.length || linha.length) { linha.push(celula); linhas.push(linha); }
+  return linhas.filter(l => l.some(v => String(v).trim() !== ''));
+}
 
-<h3 class="sec-title">Projeção de Gastos (9 Meses) — Barras Estáticas</h3>
-<div class="card">
-<div class="bar-row"><span class="bar-label">Ago</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--blue)">R$ 1.013,84</div></div><span class="bar-val">R$ 1.013,84</span></div>
-<div class="bar-row"><span class="bar-label">Set</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--purple)">R$ 1.017,83</div></div><span class="bar-val">R$ 1.017,83</span></div>
-<div class="bar-row"><span class="bar-label">Out</span><div class="bar-track"><div class="bar-fill" style="width:91.8%;background:var(--green)">R$ 934,26</div></div><span class="bar-val">R$ 934,26</span></div>
-<div class="bar-row"><span class="bar-label">Nov</span><div class="bar-track"><div class="bar-fill" style="width:91.8%;background:var(--green)">R$ 934,26</div></div><span class="bar-val">R$ 934,26</span></div>
-<div class="bar-row"><span class="bar-label">Dez</span><div class="bar-track"><div class="bar-fill" style="width:87.6%;background:var(--orange)">R$ 891,54</div></div><span class="bar-val">R$ 891,54</span></div>
-<div class="bar-row"><span class="bar-label">Jan/27</span><div class="bar-track"><div class="bar-fill" style="width:87.6%;background:var(--orange)">R$ 891,54</div></div><span class="bar-val">R$ 891,54</span></div>
-<div class="bar-row"><span class="bar-label">Fev/27</span><div class="bar-track"><div class="bar-fill" style="width:86.6%;background:var(--red)">R$ 880,87</div></div><span class="bar-val">R$ 880,87</span></div>
-<div class="bar-row"><span class="bar-label">Mar/27</span><div class="bar-track"><div class="bar-fill" style="width:83.2%;background:var(--red)">R$ 846,73</div></div><span class="bar-val">R$ 846,73</span></div>
-<div class="bar-row"><span class="bar-label">Abr/27</span><div class="bar-track"><div class="bar-fill" style="width:78.5%;background:var(--txt2)">R$ 798,87</div></div><span class="bar-val">R$ 798,87</span></div>
-<p style="font-size:11px;color:var(--txt2);margin-top:10px">Barras proporcionais ao maior valor (R$ 1.017,83 = 100%). Visualização estática em CSS puro — sem JavaScript.</p>
-</div>
+function paraNumero(v) {
+  if (v == null) return NaN;
+  let s = String(v).trim().replace(/R\$\s?/g, '').replace(/\./g, '').replace(/,/g, '.');
+  if (s.endsWith('%')) s = s.slice(0, -1);
+  const n = parseFloat(s);
+  return isNaN(n) ? NaN : n;
+}
 
-<h3 class="sec-title">Detalhamento Bradesco Setembro</h3>
-<div class="tbl-wrap"><table><thead><tr><th>Categoria</th><th>Detalhamento</th><th>Parcela</th><th>Valor</th></tr></thead><tbody>
-<tr><td>Assinaturas</td><td>Vivo (aumento R$ 4), CrossFit, Cloud, YouTube Premium</td><td>Mensal</td><td>R$ 389,90</td></tr>
-<tr><td>Parcelamentos</td><td>Presente</td><td>7/7</td><td>R$ 83,57</td></tr>
-<tr><td>Parcelamentos</td><td>Mentoria Gran</td><td>10/12</td><td>R$ 33,08</td></tr>
-<tr><td>Parcelamentos</td><td>Curso YouTube</td><td>3/12</td><td>R$ 20,37</td></tr>
-<tr><td>Parcelamentos</td><td>Smartwatch Fit3</td><td>2/7</td><td>R$ 34,14</td></tr>
-<tr class="hl-row"><td colspan="3"><strong>Subtotal Fixas</strong></td><td><strong>R$ 561,06</strong></td></tr>
-<tr><td>Alimentação/Lazer</td><td>Bacio di Latte</td><td>À vista</td><td>R$ 34,95</td></tr>
-<tr><td>Alimentação/Lazer</td><td>Tudo Conveniência</td><td>À vista</td><td>R$ 14,49</td></tr>
-<tr><td>Alimentação/Lazer</td><td>Bacio di Latte</td><td>À vista</td><td>R$ 29,95</td></tr>
-<tr><td>Transporte</td><td>Apps (99)</td><td>À vista</td><td>R$ 7,20</td></tr>
-<tr><td>Saúde</td><td>Farmácia</td><td>À vista</td><td>R$ 46,30</td></tr>
-<tr><td>Transporte</td><td>Apps (99)</td><td>À vista</td><td>R$ 9,94</td></tr>
-<tr><td>Alimentação/Lazer</td><td>Pão com Ovo e Queijo</td><td>À vista</td><td>R$ 13,74</td></tr>
-<tr><td>Transporte</td><td>Apps (99)</td><td>À vista</td><td>R$ 15,39</td></tr>
-<tr><td>Transporte</td><td>Apps (99)</td><td>À vista</td><td>R$ 8,94</td></tr>
-<tr><td>Transporte</td><td>Apps (99)</td><td>À vista</td><td>R$ 7,83</td></tr>
-<tr class="hl-row"><td colspan="3"><strong>Subtotal Variáveis</strong></td><td><strong>R$ 188,73</strong></td></tr>
-<tr class="hl-row"><td colspan="3"><strong style="color:var(--blue)">TOTAL PARCIAL SETEMBRO</strong></td><td><strong style="color:var(--blue)">R$ 749,79</strong></td></tr>
-</tbody></table></div>
+function formatarBRL(n) {
+  if (isNaN(n)) return '—';
+  return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 
-<div class="tbl-pair">
-<div class="tbl-wrap"><table><thead><tr><th>Mercado Pago Setembro</th><th>Parcela</th><th>Valor</th></tr></thead><tbody>
-<tr><td>Adapta One Gold</td><td>2/12</td><td>R$ 99,00</td></tr>
-<tr><td>Fone de Ouvido</td><td>2/6</td><td>R$ 23,16</td></tr>
-<tr><td>Relógio</td><td>10/12</td><td>R$ 9,64</td></tr>
-<tr><td>Clube iFood</td><td>Mensal</td><td>R$ 5,93</td></tr>
-<tr class="hl-row"><td><strong>TOTAL</strong></td><td></td><td><strong>R$ 137,73</strong></td></tr>
-</tbody></table></div>
-<div class="tbl-wrap"><table><thead><tr><th>Inter Setembro</th><th>Parcela</th><th>Valor</th></tr></thead><tbody>
-<tr><td>Duo Gourmet</td><td>2/12</td><td>R$ 44,25</td></tr>
-<tr><td>Sushi Ruy Barbosa</td><td>À vista</td><td>R$ 193,03</td></tr>
-<tr><td>Café da manhã</td><td>À vista</td><td>R$ 13,74</td></tr>
-<tr><td>iFood</td><td>À vista</td><td>R$ 48,89</td></tr>
-<tr class="hl-row"><td><strong>TOTAL</strong></td><td></td><td><strong>R$ 299,91</strong></td></tr>
-</tbody></table></div>
-</div>
+function escapar(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
-<h3 class="sec-title">Cronograma de Parcelamentos e Obrigações (Ago a Abr/27)</h3>
-<div class="tbl-wrap"><table><thead><tr><th>Item</th><th>Valor Base</th><th>Ago</th><th>Set</th><th>Out</th><th>Nov</th><th>Dez</th><th>Jan/27</th><th>Fev/27</th><th>Mar/27</th><th>Abr/27</th></tr></thead><tbody>
-<tr><td>Presente</td><td>R$ 83,57</td><td>6/7 ✓</td><td>7/7</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-<tr><td>Mentoria Gran</td><td>R$ 33,08</td><td>9/12 ✓</td><td>10/12</td><td>11/12</td><td>12/12</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-<tr><td>Relógio (M.P.)</td><td>R$ 9,64</td><td>9/12 ✓</td><td>10/12</td><td>11/12</td><td>12/12</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-<tr><td>Curso YouTube</td><td>R$ 20,37</td><td>2/12 ✓</td><td>3/12</td><td>4/12</td><td>5/12</td><td>6/12</td><td>7/12</td><td>8/12</td><td>9/12</td><td>10/12</td></tr>
-<tr><td>Smartwatch Fit3</td><td>R$ 34,14</td><td>1/7 ✓</td><td>2/7</td><td>3/7</td><td>4/7</td><td>5/7</td><td>6/7</td><td>7/7</td><td>—</td><td>—</td></tr>
-<tr><td>Fone de Ouvido</td><td>R$ 23,16</td><td>1/6 ✓</td><td>2/6</td><td>3/6</td><td>4/6</td><td>5/6</td><td>6/6</td><td>—</td><td>—</td><td>—</td></tr>
-<tr><td>Adapta One Gold</td><td>R$ 99,00</td><td>1/12 ✓</td><td>2/12</td><td>3/12</td><td>4/12</td><td>5/12</td><td>6/12</td><td>7/12</td><td>8/12</td><td>9/12</td></tr>
-<tr><td>Duo Gourmet (Inter)</td><td>R$ 44,25</td><td>1/12 ✓</td><td>2/12</td><td>3/12</td><td>4/12</td><td>5/12</td><td>6/12</td><td>7/12</td><td>8/12</td><td>9/12</td></tr>
-<tr><td>Clube iFood (M.P.)</td><td>R$ 5,93</td><td>R$ 5,93 ✓</td><td>R$ 5,93</td><td>R$ 5,93</td><td>R$ 5,93</td><td>R$ 5,93</td><td>R$ 5,93</td><td>R$ 5,93</td><td>R$ 5,93</td><td>R$ 5,93</td></tr>
-<tr><td>Fixos (Assinaturas)</td><td>Variável</td><td>R$ 385,90 ✓</td><td>R$ 389,90</td><td>R$ 389,90</td><td>R$ 389,90</td><td>R$ 389,90</td><td>R$ 389,90</td><td>R$ 402,40</td><td>R$ 402,40</td><td>R$ 402,40</td></tr>
-<tr><td>Repasse Hotel (Beli)</td><td>R$ 47,86</td><td>5/12 ✓</td><td>6/12</td><td>7/12</td><td>8/12</td><td>9/12</td><td>10/12</td><td>11/12</td><td>12/12</td><td>—</td></tr>
-<tr><td>Repasse Passagem (Beli)</td><td>R$ 226,93</td><td>4/12 ✓</td><td>5/12</td><td>6/12</td><td>7/12</td><td>8/12</td><td>9/12</td><td>10/12</td><td>11/12</td><td>12/12</td></tr>
-<tr class="hl-row"><td><strong>TOTAL ESTIMADO</strong></td><td></td><td><strong>R$ 1.013,84</strong></td><td><strong>R$ 1.017,83</strong></td><td><strong>R$ 934,26</strong></td><td><strong>R$ 934,26</strong></td><td><strong>R$ 891,54</strong></td><td><strong>R$ 891,54</strong></td><td><strong>R$ 880,87</strong></td><td><strong>R$ 846,73</strong></td><td><strong>R$ 798,87</strong></td></tr>
-</tbody></table></div>
+async function buscarCSV(url) {
+  let ultimoErro;
+  for (const proxy of PROXIES) {
+    try {
+      const res = await fetch(proxy(url));
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.text();
+    } catch (e) { ultimoErro = e; }
+  }
+  throw ultimoErro;
+}
 
-<h3 class="sec-title">Investimentos Acumulados</h3>
-<div class="inv-grid">
-<div class="card"><h3 style="font-size:12px;color:var(--txt2);text-transform:uppercase;margin-bottom:10px">Reserva de Emergência</h3><div class="value" style="font-size:24px;font-weight:700;color:var(--green)">R$ 100,00</div><div class="subtext" style="font-size:11px;color:var(--txt2)">Inter — Caixinha Porquinho | 82% CDI (~1,00% a.m.) | Rend. est. ~R$ 1,00/mês</div></div>
-<div class="card"><h3 style="font-size:12px;color:var(--txt2);text-transform:uppercase;margin-bottom:10px">Férias (Argentina)</h3><div class="value" style="font-size:24px;font-weight:700;color:var(--blue)">R$ 1.163,50</div><div class="subtext" style="font-size:11px;color:var(--txt2)">Nubank — Caixinha | 1,1% a.m. | Rend. est. ~R$ 12,80/mês</div></div>
-<div class="card"><h3 style="font-size:12px;color:var(--txt2);text-transform:uppercase;margin-bottom:10px">Total Acumulado</h3><div class="value" style="font-size:24px;font-weight:700;color:var(--purple)">R$ 1.263,50</div><div class="subtext" style="font-size:11px;color:var(--txt2)">Rendimento passivo est. ~R$ 13,80/mês</div></div>
-</div>
+// ── Renderização por seção ─────────────────────────────────
+function renderResumo(rows) {
+  const cards = [];
+  for (let i = 1; i < rows.length; i++) {
+    const [label, rawVal, detail] = rows[i];
+    const isPct = /%/.test(rawVal || '');
+    const n = paraNumero(rawVal);
+    const display = isPct
+      ? (isNaN(n) ? escapar(rawVal) : n.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%')
+      : formatarBRL(n);
+    cards.push('<div class="kpi"><div class="kpi-label">' + escapar(label) +
+      '</div><div class="kpi-value">' + display +
+      '</div><div class="kpi-detail">' + escapar(detail || '') + '</div></div>');
+  }
+  document.getElementById('kpis').innerHTML = cards.join('');
+}
 
-<footer>Dashboard Financeiro — Matheus Salomão Homci | Atualizado em 18/08/2026 | Próximas entradas: Salário R$ 1.224,31 em 04/09 | Liquidez projetada: R$ 400,74</footer>
-</div>
+function classeStatus(s) {
+  const v = (s || '').toLowerCase();
+  if (v.includes('normal')) return 'st-normal';
+  if (v.includes('alert')) return 'st-alerta';
+  if (v.includes('crí') || v.includes('crit')) return 'st-critico';
+  if (v.includes('livre')) return 'st-livre';
+  if (v.includes('abert')) return 'st-aberta';
+  if (v.includes('receb')) return 'st-recebida';
+  if (v.includes('prev')) return 'st-previsto';
+  return 'st-aberta';
+}
+
+function renderTabela(rows, colunasNumericas) {
+  if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
+  const head = rows[0].map(h => '<th>' + escapar(h) + '</th>').join('');
+  const body = rows.slice(1).map(r => {
+    return '<tr>' + r.map((c, idx) => {
+      const num = colunasNumericas.includes(idx) && paraNumero(c) !== NaN;
+      const cls = num ? ' class="num"' : '';
+      const txt = num ? formatarBRL(paraNumero(c)) : escapar(c);
+      return '<td' + cls + '>' + txt + '</td>';
+    }).join('') + '</tr>';
+  }).join('');
+  return '<table><thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody></table>';
+}
+
+function renderStatus(rows, idxStatus) {
+  if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
+  const head = rows[0].map(h => '<th>' + escapar(h) + '</th>').join('');
+  const body = rows.slice(1).map(r => {
+    return '<tr>' + r.map((c, idx) => {
+      if (idx === idxStatus) {
+        return '<td><span class="status ' + classeStatus(c) + '">' + escapar(c) + '</span></td>';
+      }
+      if (idx === 1) return '<td class="num">' + formatarBRL(paraNumero(c)) + '</td>';
+      return '<td>' + escapar(c) + '</td>';
+    }).join('') + '</tr>';
+  }).join('');
+  return '<table><thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody></table>';
+}
+
+function renderCronograma(rows) {
+  if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
+  const head = rows[0].map(h => '<th>' + escapar(h) + '</th>').join('');
+  const body = rows.slice(1).map(r => {
+    return '<tr>' + r.map((c, idx) => {
+      if (idx === 0) return '<td><strong>' + escapar(c) + '</strong></td>';
+      if (idx === 1 && paraNumero(c) !== NaN && !/variável/i.test(c)) return '<td class="num">' + formatarBRL(paraNumero(c)) + '</td>';
+      return '<td>' + escapar(c) + '</td>';
+    }).join('') + '</tr>';
+  }).join('');
+  return '<table><thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody></table>';
+}
+
+// ── Orquestrador principal ─────────────────────────────────
+async function carregarDados() {
+  const statusEl = document.getElementById('status');
+  const erroEl = document.getElementById('erro');
+  erroEl.style.display = 'none';
+  statusEl.innerHTML = 'Carregando dados…';
+
+  const alvos = [
+    { chave: 'resumo',       fn: rows => renderResumo(rows) },
+    { chave: 'limites',      fn: rows => renderStatus(rows, 4) },
+    { chave: 'faturas',      fn: rows => renderStatus(rows, 3) },
+    { chave: 'entradas',     fn: rows => renderStatus(rows, 3) },
+    { chave: 'cronograma',   fn: rows => renderCronograma(rows) },
+    { chave: 'investimentos',fn: rows => renderTabela(rows, [1]) }
+  ];
+
+  const resultados = await Promise.allSettled(
+    alvos.map(a => buscarCSV(SHEETS[a.chave]).then(texto => {
+      const rows = parseCSV(texto);
+      a.fn(rows);
+    }))
+  );
+
+  const falhas = resultados.filter(r => r.status === 'rejected').length;
+  const agora = new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+  if (falhas > 0) {
+    statusEl.innerHTML = 'Atualizado: ' + agora + '<br><span style="color:#fca5a5">' + falhas + ' de 6 seções falharam</span>';
+    erroEl.style.display = 'block';
+    erroEl.innerHTML = '⚠️ Não foi possível carregar todas as seções (' + falhas + ' de 6). ' +
+      'Isso costuma acontecer quando o proxy CORS gratuito está temporariamente limitado. ' +
+      'Clique em "Atualizar dados" para tentar de novo, ou recarregue a página.';
+  } else {
+    statusEl.innerHTML = '✓ Atualizado: ' + agora;
+  }
+}
+
+carregarDados();
+</script>
 </body>
 </html>
