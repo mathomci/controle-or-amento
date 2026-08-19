@@ -127,219 +127,103 @@
 </style>
 </head>
 <body>
-
+<div class="layout">
   <aside class="sidebar">
-    💰 Controle
-
-
-    Orçamentário · Matheus
-
-
-    📌 Resumo
-
-
-    💳 Cartões
-
-
-    🔍 Detalhamento
-
-
-    📥 Entradas e Saídas
-
-
-    📅 Cronograma
-
-
-    📈 Investimentos
-
-
-    📊 Evolução Mensal
-
-
+    <div class="logo">💰 Controle</div>
+    <div class="logo-sub">Orçamentário · Matheus</div>
+    <div class="nav-item active" data-secao="resumo"><span class="ico">📌</span> Resumo</div>
+    <div class="nav-item" data-secao="cartoes"><span class="ico">💳</span> Cartões</div>
+    <div class="nav-item" data-secao="detalhes"><span class="ico">🔍</span> Detalhamento</div>
+    <div class="nav-item" data-secao="lancamentos"><span class="ico">📥</span> Entradas e Saídas</div>
+    <div class="nav-item" data-secao="cronograma"><span class="ico">📅</span> Cronograma</div>
+    <div class="nav-item" data-secao="investimentos"><span class="ico">📈</span> Investimentos</div>
+    <div class="nav-item" data-secao="grafico"><span class="ico">📊</span> Evolução Mensal</div>
   </aside>
 
-  
+  <div class="main">
     <header>
-      
+      <div>
         <h1>💰 Controle Orçamentário</h1>
-        Matheus Homci · Dashboard pessoal
-
-
-      
-
-
-      
+        <div class="sub">Matheus Homci · Dashboard pessoal</div>
+      </div>
+      <div class="actions">
         <button class="btn-refresh" onclick="carregarDados()">↻ Atualizar</button>
-        Carregando…
-
-
-      
-
-
+        <div id="status">Carregando…</div>
+      </div>
     </header>
 
-    
+    <div id="erro"></div>
 
-
-
-    
-      
+    <div id="secao-resumo" class="secao">
+      <div class="section">
         <h2>📌 Resumo Geral</h2>
-        Carregando…
+        <div class="grid-kpis" id="kpis"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
+    </div>
 
-
-
-
-      
-
-
-    
-
-
-
-    
-      
-        
+    <div id="secao-cartoes" class="secao hidden">
+      <div class="grid-2col">
+        <div class="section">
           <h2>💳 Limites dos Cartões</h2>
-          Carregando…
-
-
-
-
-        
-
-
-        
+          <div class="table-wrap" id="limites"><p style="color:#94a3b8">Carregando…</p></div>
+        </div>
+        <div class="section">
           <h2>🧾 Faturas do Mês</h2>
-          Carregando…
+          <div class="table-wrap" id="faturas"><p style="color:#94a3b8">Carregando…</p></div>
+        </div>
+      </div>
+    </div>
 
-
-
-
-        
-
-
-      
-
-
-    
-
-
-
-    
-      
+    <div id="secao-detalhes" class="secao hidden">
+      <div class="section">
         <h2>💳 Bradesco Visa</h2>
-        Carregando…
-
-
-
-
-      
-
-
-      
+        <div class="table-wrap" id="det-bradesco"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
+      <div class="section">
         <h2>💳 Mercado Pago Visa</h2>
-        Carregando…
-
-
-
-
-      
-
-
-      
+        <div class="table-wrap" id="det-mp"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
+      <div class="section">
         <h2>💳 Inter Mastercard</h2>
-        Carregando…
-
-
-
-
-      
-
-
-      
+        <div class="table-wrap" id="det-inter"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
+      <div class="section">
         <h2>💳 Nubank Mastercard</h2>
-        Carregando…
+        <div class="table-wrap" id="det-nubank"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
+    </div>
 
-
-
-
-      
-
-
-    
-
-
-
-    
-      
+    <div id="secao-lancamentos" class="secao hidden">
+      <div class="section">
         <h2>📥 Entradas e Saídas</h2>
-        Carregando…
+        <div class="table-wrap" id="lancamentos"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
+    </div>
 
-
-
-
-      
-
-
-    
-
-
-
-    
-      
+    <div id="secao-cronograma" class="secao hidden">
+      <div class="section">
         <h2>📅 Cronograma de Parcelamentos</h2>
-        Carregando…
+        <div class="table-wrap" id="cronograma"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
+    </div>
 
-
-
-
-      
-
-
-    
-
-
-
-    
-      
+    <div id="secao-investimentos" class="secao hidden">
+      <div class="section">
         <h2>📈 Investimentos</h2>
-        Carregando…
+        <div class="table-wrap" id="investimentos"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
+    </div>
 
-
-
-
-      
-
-
-    
-
-
-
-    
-      
+    <div id="secao-grafico" class="secao hidden">
+      <div class="section">
         <h2>📊 Evolução Mensal dos Gastos</h2>
-        Carregando…
+        <div id="grafico"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
+    </div>
 
-
-
-
-      
-
-
-    
-
-
-
-    Dados lidos direto do Google Sheets · Atualize a página ou clique em "Atualizar"
-
-
-  
-
-
-
-
-
+    <div class="footer">Dados lidos direto do Google Sheets · Atualize a página ou clique em "Atualizar"</div>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
@@ -394,7 +278,7 @@ function formatarPercentual(v) {
 }
 
 function escapar(s) {
-  return String(s == null ? '' : s).replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function formatarCelula(v) {
@@ -466,21 +350,11 @@ function renderResumo(rows) {
     let display;
     if (isPct) display = formatarPercentual(rawVal);
     else display = isNaN(n) ? escapar(rawVal) : formatarBRL(n);
-    cards.push('' + escapar(label) +
-      '
-
-' + display +
-      '
-
-' + escapar(detail) + '
-
-
-
-');
+    cards.push('<div class="kpi"><div class="kpi-label">' + escapar(label) +
+      '</div><div class="kpi-value">' + display +
+      '</div><div class="kpi-detail">' + escapar(detail) + '</div></div>');
   }
-  return cards.join('') || 'Sem dados
-
-';
+  return cards.join('') || '<p style="color:#94a3b8">Sem dados</p>';
 }
 
 function classeStatus(s) {
@@ -498,13 +372,11 @@ function classeStatus(s) {
 }
 
 function montarTabela(head, body) {
-  return '' + head + '' + body + '';
+  return '<table><thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody></table>';
 }
 
 function renderTabela(rows, colunasNumericas, colunasPercentuais) {
-  if (!rows.length) return 'Sem dados
-
-';
+  if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
   const head = rows[0].map(h => '<th>' + escapar(h) + '</th>').join('');
   const body = rows.slice(1).map(r => {
     return '<tr>' + r.map((c, idx) => {
@@ -521,14 +393,12 @@ function renderTabela(rows, colunasNumericas, colunasPercentuais) {
 }
 
 function renderStatus(rows, idxStatus) {
-  if (!rows.length) return 'Sem dados
-
-';
+  if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
   const head = rows[0].map(h => '<th>' + escapar(h) + '</th>').join('');
   const body = rows.slice(1).map(r => {
     return '<tr>' + r.map((c, idx) => {
       if (idx === idxStatus) {
-        return '<td>' + escapar(c) + '</td>';
+        return '<td><span class="status ' + classeStatus(c) + '">' + escapar(c) + '</span></td>';
       }
       if (idx === 1) return '<td class="num">' + formatarBRL(paraNumero(c)) + '</td>';
       return '<td>' + escapar(formatarCelula(c)) + '</td>';
@@ -538,15 +408,13 @@ function renderStatus(rows, idxStatus) {
 }
 
 function renderLancamentos(rows) {
-  if (!rows.length) return 'Sem dados
-
-';
+  if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
   const head = rows[0].map(h => '<th>' + escapar(h) + '</th>').join('');
   const body = rows.slice(1).map(r => {
     return '<tr>' + r.map((c, idx) => {
       if (idx === 1) {
         const cls = classeStatus(c);
-        return '<td>' + escapar(c) + '</td>';
+        return '<td><span class="status ' + cls + '">' + escapar(c) + '</span></td>';
       }
       if (idx === 2) return '<td class="num">' + formatarBRL(paraNumero(c)) + '</td>';
       return '<td>' + escapar(formatarCelula(c)) + '</td>';
@@ -557,9 +425,7 @@ function renderLancamentos(rows) {
 
 // Detalhamento de cartão: soma os valores e mostra linha de TOTAL no final
 function renderDetalheCartao(rows) {
-  if (!rows.length) return 'Sem dados
-
-';
+  if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
   const head = rows[0].map(h => '<th>' + escapar(h) + '</th>').join('');
   let total = 0;
   const body = rows.slice(1).map(r => {
@@ -570,19 +436,17 @@ function renderDetalheCartao(rows) {
       return '<td>' + escapar(formatarCelula(c)) + '</td>';
     }).join('') + '</tr>';
   }).join('');
-  const totalHtml = '<tr class="total-row"><td>**TOTAL**</td><td class="num">' +
+  const totalHtml = '<tr class="total-row"><td><strong>TOTAL</strong></td><td class="num">' +
     formatarBRL(total) + '</td><td colspan="3"></td></tr>';
   return montarTabela(head, body + totalHtml);
 }
 
 function renderCronograma(rows) {
-  if (!rows.length) return 'Sem dados
-
-';
+  if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
   const head = rows[0].map(h => '<th>' + escapar(h) + '</th>').join('');
   const body = rows.slice(1).map(r => {
     return '<tr>' + r.map((c, idx) => {
-      if (idx === 0) return '<td>**' + escapar(c) + '**</td>';
+      if (idx === 0) return '<td><strong>' + escapar(c) + '</strong></td>';
       if (idx === 1 && !isNaN(paraNumero(c)) && !/variável/i.test(String(c))) {
         return '<td class="num">' + formatarBRL(paraNumero(c)) + '</td>';
       }
@@ -679,9 +543,7 @@ async function carregarDados() {
         else s.fn(linhas);
         return true;
       }
-      if (s.el) document.getElementById(s.el).innerHTML = 'Falha ao carregar
-
-';
+      if (s.el) document.getElementById(s.el).innerHTML = '<p style="color:#94a3b8">Falha ao carregar</p>';
       return false;
     })
   );
@@ -692,8 +554,7 @@ async function carregarDados() {
   if (ok === secoes.length) {
     statusEl.innerHTML = '✓ Atualizado: ' + agora;
   } else {
-    statusEl.innerHTML = 'Atualizado: ' + agora + '
-' + (secoes.length - ok) + ' de ' + secoes.length + ' seções falharam';
+    statusEl.innerHTML = 'Atualizado: ' + agora + '<br><span style="color:#fca5a5">' + (secoes.length - ok) + ' de ' + secoes.length + ' seções falharam</span>';
     erroEl.style.display = 'block';
     erroEl.innerHTML = '⚠️ Não foi possível carregar ' + (secoes.length - ok) + ' de ' + secoes.length + ' seções. Clique em "Atualizar" para tentar de novo.';
   }
