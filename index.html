@@ -232,7 +232,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
-// ID publicado da planilha (link 2PACX-... que você gerou ao publicar)
 const PUBLISHED_ID = '2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S';
 const ABAS = {
   resumo:        { gid: '0' },
@@ -292,7 +291,6 @@ function formatarCelula(v) {
   return String(v).trim();
 }
 
-// Parser de CSV (lida com aspas e vírgulas dentro de campos)
 function parseCSV(texto) {
   const linhas = [];
   let celula = '';
@@ -317,7 +315,6 @@ function parseCSV(texto) {
   return linhas;
 }
 
-// Busca via link publicado (CSV) — muito mais confiável que o gviz
 async function obterLinhas(gid) {
   const url = 'https://docs.google.com/spreadsheets/d/e/' + PUBLISHED_ID +
     '/pub?gid=' + gid + '&single=true&output=csv&cb=' + Date.now();
@@ -419,11 +416,14 @@ function renderLancamentos(rows) {
   return montarTabela(head, body);
 }
 
+// Detalhamento de cartão: ignora a linha TOTAL da planilha e mostra a soma calculada
 function renderDetalheCartao(rows) {
   if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
   const head = rows[0].map(h => '<th>' + escapar(h) + '</th>').join('');
   let total = 0;
   const body = rows.slice(1).map(r => {
+    const desc = limparValor(r[0]);
+    if (/^total$/i.test(desc)) return ''; // pula a linha TOTAL da planilha
     const val = paraNumero(r[1]);
     if (!isNaN(val)) total += val;
     return '<tr>' + r.map((c, idx) => {
@@ -451,7 +451,6 @@ function renderCronograma(rows) {
   return montarTabela(head, body);
 }
 
-// Investimentos como cards claros (cada um no mesmo nível) + total
 function renderInvestimentos(rows) {
   if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
   let cards = '';
