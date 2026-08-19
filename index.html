@@ -23,10 +23,7 @@
     padding: 24px 16px; position: fixed; top: 0; left: 0; bottom: 0;
     overflow-y: auto; z-index: 50;
   }
-  .sidebar .logo {
-    color: #fff; font-weight: 800; font-size: 1.05rem; margin-bottom: 4px;
-    display: flex; align-items: center; gap: 8px;
-  }
+  .sidebar .logo { color: #fff; font-weight: 800; font-size: 1.05rem; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
   .sidebar .logo-sub { font-size: 0.72rem; color: #94a3b8; margin-bottom: 22px; }
   .nav-item {
     display: flex; align-items: center; gap: 10px; padding: 11px 12px;
@@ -92,23 +89,14 @@
   .st-previsto { background: var(--blue-bg); color: var(--brand-dark); }
   .st-entrada { background: var(--green-bg); color: var(--green); }
   .st-saida { background: var(--red-bg); color: var(--red); }
-  .total-row td {
-    background: var(--slate-bg); font-weight: 800; border-top: 2px solid var(--brand);
-    color: var(--ink); font-size: 0.9rem;
-  }
+  .total-row td { background: var(--slate-bg); font-weight: 800; border-top: 2px solid var(--brand); color: var(--ink); font-size: 0.9rem; }
   .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
-  #erro {
-    display: none; background: var(--red-bg); color: var(--red); border: 1px solid #fecaca;
-    border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; font-size: 0.88rem;
-  }
+  #erro { display: none; background: var(--red-bg); color: var(--red); border: 1px solid #fecaca; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; font-size: 0.88rem; }
   .footer { text-align: center; color: #94a3b8; font-size: 0.74rem; padding: 18px 0 6px; }
   .hidden { display: none; }
   @media (max-width: 860px) {
     .layout { flex-direction: column; }
-    .sidebar {
-      position: static; width: 100%; padding: 14px 12px; display: flex;
-      flex-wrap: wrap; gap: 6px; align-items: center; overflow-x: auto;
-    }
+    .sidebar { position: static; width: 100%; padding: 14px 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; overflow-x: auto; }
     .sidebar .logo, .sidebar .logo-sub { display: none; }
     .nav-item { margin-bottom: 0; padding: 8px 12px; font-size: 0.78rem; }
     .main { margin-left: 0; padding: 16px 12px; }
@@ -217,7 +205,9 @@
     <div id="secao-grafico" class="secao hidden">
       <div class="section">
         <h2>📊 Evolução Mensal dos Gastos</h2>
-        <div id="grafico"><p style="color:#94a3b8">Carregando…</p></div>
+        <div style="position:relative; height:340px;">
+          <canvas id="graficoMensal"></canvas>
+        </div>
       </div>
     </div>
 
@@ -333,9 +323,15 @@ function tabelaDeResposta(resposta) {
   });
 }
 
+// Busca com até 3 tentativas — contorna a instabilidade/cache do gviz
 async function obterLinhas(gid) {
-  const viaGviz = await buscarViaGviz(gid);
-  return tabelaDeResposta(viaGviz);
+  for (let tentativa = 0; tentativa < 3; tentativa++) {
+    const viaGviz = await buscarViaGviz(gid);
+    const linhas = tabelaDeResposta(viaGviz);
+    if (linhas.length > 0) return linhas;
+    await new Promise(r => setTimeout(r, 600));
+  }
+  return [];
 }
 
 function renderResumo(rows) {
@@ -423,7 +419,6 @@ function renderLancamentos(rows) {
   return montarTabela(head, body);
 }
 
-// Detalhamento de cartão: soma os valores e mostra linha de TOTAL no final
 function renderDetalheCartao(rows) {
   if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
   const head = rows[0].map(h => '<th>' + escapar(h) + '</th>').join('');
@@ -503,7 +498,6 @@ function renderGrafico(rows) {
   });
 }
 
-// Navegação por abas
 document.querySelectorAll('.nav-item').forEach(function (item) {
   item.addEventListener('click', function () {
     document.querySelectorAll('.nav-item').forEach(function (i) { i.classList.remove('active'); });
@@ -515,7 +509,6 @@ document.querySelectorAll('.nav-item').forEach(function (item) {
   });
 });
 
-// Carrega cada seção individualmente — uma falha não trava as outras
 async function carregarDados() {
   const statusEl = document.getElementById('status');
   const erroEl = document.getElementById('erro');
@@ -539,7 +532,6 @@ async function carregarDados() {
   let ok = 0;
   let falhas = 0;
 
-  // Renderiza cada seção assim que os dados chegam (sem Promise.all que trava tudo)
   await Promise.all(secoes.map(async s => {
     try {
       const linhas = await obterLinhas(ABAS[s.chave].gid);
