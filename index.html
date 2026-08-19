@@ -129,7 +129,7 @@
     <div class="logo-sub">Orçamentário · Matheus</div>
     <div class="nav-item active" data-secao="resumo"><span class="ico">📌</span> Resumo</div>
     <div class="nav-item" data-secao="cartoes"><span class="ico">💳</span> Cartões</div>
-    <div class="nav-item" data-secao="detalhamento"><span class="ico">🔍</span> Detalhamento</div>
+    <div class="nav-item" data-secao="detalhes"><span class="ico">🔍</span> Detalhamento</div>
     <div class="nav-item" data-secao="lancamentos"><span class="ico">📥</span> Entradas e Saídas</div>
     <div class="nav-item" data-secao="cronograma"><span class="ico">📅</span> Cronograma</div>
     <div class="nav-item" data-secao="investimentos"><span class="ico">📈</span> Investimentos</div>
@@ -170,10 +170,22 @@
       </div>
     </div>
 
-    <div id="secao-detalhamento" class="secao hidden">
+    <div id="secao-detalhes" class="secao hidden">
       <div class="section">
-        <h2>🔍 Detalhamento por Cartão</h2>
-        <div class="table-wrap" id="detalhamento"><p style="color:#94a3b8">Carregando…</p></div>
+        <h2>💳 Bradesco Visa</h2>
+        <div class="table-wrap" id="det-bradesco"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
+      <div class="section">
+        <h2>💳 Mercado Pago Visa</h2>
+        <div class="table-wrap" id="det-mp"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
+      <div class="section">
+        <h2>💳 Inter Mastercard</h2>
+        <div class="table-wrap" id="det-inter"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
+      <div class="section">
+        <h2>💳 Nubank Mastercard</h2>
+        <div class="table-wrap" id="det-nubank"><p style="color:#94a3b8">Carregando…</p></div>
       </div>
     </div>
 
@@ -220,7 +232,10 @@ const ABAS = {
   cronograma:    { gid: '1731209628' },
   investimentos: { gid: '1278202952' },
   mensal:        { gid: '1583243318' },
-  detalhamento:  { gid: '763764083' }
+  bradesco:      { gid: '1531971815' },
+  inter:         { gid: '1033034888' },
+  mp:            { gid: '1004144872' },
+  nubank:        { gid: '1136662366' }
 };
 
 let graficoInstancia = null;
@@ -486,7 +501,10 @@ async function carregarDados() {
     { chave: 'resumo',        el: 'kpis',          fn: renderResumo },
     { chave: 'limites',       el: 'limites',       fn: r => renderTabela(r, [1, 2], [3]) },
     { chave: 'faturas',       el: 'faturas',       fn: r => renderStatus(r, 3) },
-    { chave: 'detalhamento',  el: 'detalhamento',  fn: r => renderTabela(r, [2]) },
+    { chave: 'bradesco',      el: 'det-bradesco',  fn: r => renderTabela(r, [1]) },
+    { chave: 'mp',            el: 'det-mp',        fn: r => renderTabela(r, [1]) },
+    { chave: 'inter',         el: 'det-inter',     fn: r => renderTabela(r, [1]) },
+    { chave: 'nubank',        el: 'det-nubank',    fn: r => renderTabela(r, [1]) },
     { chave: 'lancamentos',   el: 'lancamentos',   fn: renderLancamentos },
     { chave: 'cronograma',    el: 'cronograma',    fn: renderCronograma },
     { chave: 'investimentos', el: 'investimentos', fn: r => renderTabela(r, [1]) },
