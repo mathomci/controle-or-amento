@@ -92,6 +92,10 @@
   .st-previsto { background: var(--blue-bg); color: var(--brand-dark); }
   .st-entrada { background: var(--green-bg); color: var(--green); }
   .st-saida { background: var(--red-bg); color: var(--red); }
+  .total-row td {
+    background: var(--slate-bg); font-weight: 800; border-top: 2px solid var(--brand);
+    color: var(--ink); font-size: 0.9rem;
+  }
   .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
   #erro {
     display: none; background: var(--red-bg); color: var(--red); border: 1px solid #fecaca;
@@ -417,6 +421,24 @@ function renderLancamentos(rows) {
   return montarTabela(head, body);
 }
 
+// Detalhamento de cartão: soma os valores e mostra linha de TOTAL no final
+function renderDetalheCartao(rows) {
+  if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
+  const head = rows[0].map(h => '<th>' + escapar(h) + '</th>').join('');
+  let total = 0;
+  const body = rows.slice(1).map(r => {
+    const val = paraNumero(r[1]);
+    if (!isNaN(val)) total += val;
+    return '<tr>' + r.map((c, idx) => {
+      if (idx === 1) return '<td class="num">' + formatarBRL(val) + '</td>';
+      return '<td>' + escapar(formatarCelula(c)) + '</td>';
+    }).join('') + '</tr>';
+  }).join('');
+  const totalHtml = '<tr class="total-row"><td><strong>TOTAL</strong></td><td class="num">' +
+    formatarBRL(total) + '</td><td colspan="3"></td></tr>';
+  return montarTabela(head, body + totalHtml);
+}
+
 function renderCronograma(rows) {
   if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
   const head = rows[0].map(h => '<th>' + escapar(h) + '</th>').join('');
@@ -501,10 +523,10 @@ async function carregarDados() {
     { chave: 'resumo',        el: 'kpis',          fn: renderResumo },
     { chave: 'limites',       el: 'limites',       fn: r => renderTabela(r, [1, 2], [3]) },
     { chave: 'faturas',       el: 'faturas',       fn: r => renderStatus(r, 3) },
-    { chave: 'bradesco',      el: 'det-bradesco',  fn: r => renderTabela(r, [1]) },
-    { chave: 'mp',            el: 'det-mp',        fn: r => renderTabela(r, [1]) },
-    { chave: 'inter',         el: 'det-inter',     fn: r => renderTabela(r, [1]) },
-    { chave: 'nubank',        el: 'det-nubank',    fn: r => renderTabela(r, [1]) },
+    { chave: 'bradesco',      el: 'det-bradesco',  fn: renderDetalheCartao },
+    { chave: 'mp',            el: 'det-mp',        fn: renderDetalheCartao },
+    { chave: 'inter',         el: 'det-inter',     fn: renderDetalheCartao },
+    { chave: 'nubank',        el: 'det-nubank',    fn: renderDetalheCartao },
     { chave: 'lancamentos',   el: 'lancamentos',   fn: renderLancamentos },
     { chave: 'cronograma',    el: 'cronograma',    fn: renderCronograma },
     { chave: 'investimentos', el: 'investimentos', fn: r => renderTabela(r, [1]) },
