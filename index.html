@@ -310,7 +310,7 @@ function buscarViaGviz(gid) {
       const el = document.getElementById('jsonp-' + nome);
       if (el) el.remove();
     }
-    const timer = setTimeout(function () { limpar(); resolve(null); }, 15000);
+    const timer = setTimeout(function () { limpar(); resolve(null); }, 8000);
     window[nome] = function (resposta) { limpar(); resolve(resposta); };
     const s = document.createElement('script');
     s.id = 'jsonp-' + nome;
@@ -515,6 +515,7 @@ document.querySelectorAll('.nav-item').forEach(function (item) {
   });
 });
 
+// Carrega cada seção individualmente — uma falha não trava as outras
 async function carregarDados() {
   const statusEl = document.getElementById('status');
   const erroEl = document.getElementById('erro');
@@ -535,28 +536,35 @@ async function carregarDados() {
     { chave: 'mensal',        el: null,            fn: renderGrafico }
   ];
 
-  const resultados = await Promise.all(
-    secoes.map(async s => {
+  let ok = 0;
+  let falhas = 0;
+
+  // Renderiza cada seção assim que os dados chegam (sem Promise.all que trava tudo)
+  await Promise.all(secoes.map(async s => {
+    try {
       const linhas = await obterLinhas(ABAS[s.chave].gid);
       if (linhas.length > 0) {
         if (s.el) document.getElementById(s.el).innerHTML = s.fn(linhas);
         else s.fn(linhas);
-        return true;
+        ok++;
+      } else {
+        if (s.el) document.getElementById(s.el).innerHTML = '<p style="color:#f59e0b">Sem dados disponíveis</p>';
+        falhas++;
       }
-      if (s.el) document.getElementById(s.el).innerHTML = '<p style="color:#94a3b8">Falha ao carregar</p>';
-      return false;
-    })
-  );
+    } catch (e) {
+      if (s.el) document.getElementById(s.el).innerHTML = '<p style="color:#f59e0b">Não foi possível carregar</p>';
+      falhas++;
+    }
+  }));
 
-  const ok = resultados.filter(Boolean).length;
   const agora = new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
 
-  if (ok === secoes.length) {
+  if (falhas === 0) {
     statusEl.innerHTML = '✓ Atualizado: ' + agora;
   } else {
-    statusEl.innerHTML = 'Atualizado: ' + agora + '<br><span style="color:#fca5a5">' + (secoes.length - ok) + ' de ' + secoes.length + ' seções falharam</span>';
+    statusEl.innerHTML = 'Atualizado: ' + agora + '<br><span style="color:#fca5a5">' + falhas + ' seção(ões) sem dados</span>';
     erroEl.style.display = 'block';
-    erroEl.innerHTML = '⚠️ Não foi possível carregar ' + (secoes.length - ok) + ' de ' + secoes.length + ' seções. Clique em "Atualizar" para tentar de novo.';
+    erroEl.innerHTML = '⚠️ ' + falhas + ' de ' + secoes.length + ' seções não carregaram. Clique em "Atualizar" para tentar de novo.';
   }
 }
 
