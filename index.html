@@ -91,6 +91,20 @@
   .st-saida { background: var(--red-bg); color: var(--red); }
   .total-row td { background: var(--slate-bg); font-weight: 800; border-top: 2px solid var(--brand); color: var(--ink); font-size: 0.9rem; }
   .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+  .invest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+  .invest-card {
+    background: var(--slate-bg); border: 1px solid var(--line); border-radius: 14px;
+    padding: 18px 20px;
+  }
+  .invest-nome { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); font-weight: 700; }
+  .invest-valor { font-size: 1.5rem; font-weight: 800; color: var(--ink); margin: 8px 0 5px; }
+  .invest-detalhe { font-size: 0.75rem; color: var(--muted); }
+  .invest-total {
+    background: var(--blue-bg); border: 1px solid var(--brand); border-radius: 14px;
+    padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .invest-total span { font-size: 0.85rem; font-weight: 700; color: var(--brand-dark); }
+  .invest-total strong { font-size: 1.3rem; font-weight: 800; color: var(--brand-dark); }
   #erro { display: none; background: var(--red-bg); color: var(--red); border: 1px solid #fecaca; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; font-size: 0.88rem; }
   .footer { text-align: center; color: #94a3b8; font-size: 0.74rem; padding: 18px 0 6px; }
   .hidden { display: none; }
@@ -101,6 +115,7 @@
     .nav-item { margin-bottom: 0; padding: 8px 12px; font-size: 0.78rem; }
     .main { margin-left: 0; padding: 16px 12px; }
     .grid-2col { grid-template-columns: 1fr; }
+    .invest-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 640px) {
     .section { padding: 16px 14px; }
@@ -198,7 +213,7 @@
     <div id="secao-investimentos" class="secao hidden">
       <div class="section">
         <h2>📈 Investimentos</h2>
-        <div class="table-wrap" id="investimentos"><p style="color:#94a3b8">Carregando…</p></div>
+        <div id="investimentos"><p style="color:#94a3b8">Carregando…</p></div>
       </div>
     </div>
 
@@ -217,7 +232,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
-const SPREADSHEET_ID = '15ZYqQOn-xx-GndQTTWkYRY9R0c0bMyLPs6gKlW_3ZpQ';
+// ID publicado da planilha (link 2PACX-... que você gerou ao publicar)
+const PUBLISHED_ID = '2PACX-1vTn3WVpXjtEOzekF4UXmzQKij_bnjcq3QEKB9Cs5tC3tDa2kE7lsZlg9-dPF25f6Tm6tKi3CmYoLp9S';
 const ABAS = {
   resumo:        { gid: '0' },
   limites:       { gid: '541806221' },
@@ -273,62 +289,46 @@ function escapar(s) {
 
 function formatarCelula(v) {
   if (v == null) return '';
-  const s = String(v).trim();
-  const m = s.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})\)$/);
-  if (m) {
-    const dia = String(Number(m[3]) + 1).padStart(2, '0');
-    const mes = String(Number(m[2]) + 1).padStart(2, '0');
-    return dia + '/' + mes;
-  }
-  return s;
+  return String(v).trim();
 }
 
-let seqJsonp = 0;
-function buscarViaGviz(gid) {
-  return new Promise(function (resolve) {
-    const nome = 'cbGviz' + (++seqJsonp);
-    const url = 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID +
-      '/gviz/tq?gid=' + gid +
-      '&tqx=out:json;responseHandler:' + nome +
-      '&cb=' + Date.now() + (++seqJsonp);
-    let concluido = false;
-    function limpar() {
-      if (concluido) return;
-      concluido = true;
-      clearTimeout(timer);
-      try { delete window[nome]; } catch (e) { window[nome] = undefined; }
-      const el = document.getElementById('jsonp-' + nome);
-      if (el) el.remove();
+// Parser de CSV (lida com aspas e vírgulas dentro de campos)
+function parseCSV(texto) {
+  const linhas = [];
+  let celula = '';
+  let dentroAspas = false;
+  let linha = [];
+  for (let i = 0; i < texto.length; i++) {
+    const c = texto[i];
+    if (dentroAspas) {
+      if (c === '"') {
+        if (texto[i + 1] === '"') { celula += '"'; i++; }
+        else dentroAspas = false;
+      } else celula += c;
+    } else {
+      if (c === '"') dentroAspas = true;
+      else if (c === ',') { linha.push(celula); celula = ''; }
+      else if (c === '\n') { linha.push(celula); linhas.push(linha); linha = []; celula = ''; }
+      else if (c === '\r') { /* ignora */ }
+      else celula += c;
     }
-    const timer = setTimeout(function () { limpar(); resolve(null); }, 8000);
-    window[nome] = function (resposta) { limpar(); resolve(resposta); };
-    const s = document.createElement('script');
-    s.id = 'jsonp-' + nome;
-    s.src = url;
-    s.onerror = function () { limpar(); resolve(null); };
-    document.head.appendChild(s);
-  });
+  }
+  if (celula !== '' || linha.length > 0) { linha.push(celula); linhas.push(linha); }
+  return linhas;
 }
 
-function tabelaDeResposta(resposta) {
-  if (!resposta || resposta.status !== 'ok' || !resposta.table) return [];
-  const linhas = resposta.table.rows || [];
-  return linhas.map(function (r) {
-    const celulas = r.c || [];
-    return celulas.map(function (cel) {
-      if (cel && cel.v !== null && cel.v !== undefined) return cel.v;
-      if (cel && cel.f !== undefined) return cel.f;
-      return '';
-    });
-  });
-}
-
-// Busca com até 3 tentativas — contorna a instabilidade/cache do gviz
+// Busca via link publicado (CSV) — muito mais confiável que o gviz
 async function obterLinhas(gid) {
+  const url = 'https://docs.google.com/spreadsheets/d/e/' + PUBLISHED_ID +
+    '/pub?gid=' + gid + '&single=true&output=csv&cb=' + Date.now();
   for (let tentativa = 0; tentativa < 3; tentativa++) {
-    const viaGviz = await buscarViaGviz(gid);
-    const linhas = tabelaDeResposta(viaGviz);
-    if (linhas.length > 0) return linhas;
+    try {
+      const resp = await fetch(url, { cache: 'no-store' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const texto = await resp.text();
+      const linhas = parseCSV(texto);
+      if (linhas.length > 0) return linhas;
+    } catch (e) { /* tenta de novo */ }
     await new Promise(r => setTimeout(r, 600));
   }
   return [];
@@ -451,6 +451,29 @@ function renderCronograma(rows) {
   return montarTabela(head, body);
 }
 
+// Investimentos como cards claros (cada um no mesmo nível) + total
+function renderInvestimentos(rows) {
+  if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
+  let cards = '';
+  let total = 0;
+  for (let i = 1; i < rows.length; i++) {
+    const nome = limparValor(rows[i][0]);
+    const val = paraNumero(rows[i][1]);
+    const det = limparValor(rows[i][2]);
+    if (!nome) continue;
+    if (/total/i.test(nome)) { total = val; continue; }
+    if (isNaN(val)) continue;
+    cards += '<div class="invest-card">' +
+      '<div class="invest-nome">' + escapar(nome) + '</div>' +
+      '<div class="invest-valor">' + formatarBRL(val) + '</div>' +
+      '<div class="invest-detalhe">' + escapar(det) + '</div>' +
+      '</div>';
+  }
+  const totalHtml = '<div class="invest-total"><span>Total Acumulado</span><strong>' +
+    formatarBRL(total) + '</strong></div>';
+  return '<div class="invest-grid">' + cards + '</div>' + totalHtml;
+}
+
 function renderGrafico(rows) {
   const canvas = document.getElementById('graficoMensal');
   if (!canvas) return;
@@ -525,7 +548,7 @@ async function carregarDados() {
     { chave: 'nubank',        el: 'det-nubank',    fn: renderDetalheCartao },
     { chave: 'lancamentos',   el: 'lancamentos',   fn: renderLancamentos },
     { chave: 'cronograma',    el: 'cronograma',    fn: renderCronograma },
-    { chave: 'investimentos', el: 'investimentos', fn: r => renderTabela(r, [1]) },
+    { chave: 'investimentos', el: 'investimentos', fn: renderInvestimentos },
     { chave: 'mensal',        el: null,            fn: renderGrafico }
   ];
 
