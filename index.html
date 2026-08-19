@@ -7,32 +7,64 @@
 <style>
   :root {
     --bg: #f4f6fb; --card: #ffffff; --ink: #1e293b; --muted: #64748b;
-    --line: #e2e8f0; --brand: #2563eb; --brand-dark: #1e40af;
-    --green: #16a34a; --green-bg: #dcfce7; --amber: #d97706; --amber-bg: #fef3c7;
-    --red: #dc2626; --red-bg: #fee2e2; --blue-bg: #dbeafe; --slate-bg: #f1f5f9;
+    --line: #e2e8f0; --brand: #2563eb; --brand-dark: #1e40af; --brand-soft: #eff6ff;
+    --green: #16a34a; --green-bg: #dcfce7; --red: #dc2626; --red-bg: #fee2e2;
+    --amber: #d97706; --amber-bg: #fef3c7; --slate-bg: #f1f5f9;
+    --sidebar-w: 230px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
-    background: var(--bg); color: var(--ink); padding: 28px 20px; line-height: 1.5;
+    background: var(--bg); color: var(--ink); line-height: 1.5;
   }
-  .container { max-width: 1180px; margin: 0 auto; }
-  header {
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #2563eb 130%);
-    color: #fff; border-radius: 18px; padding: 28px 32px;
-    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
-    gap: 14px; margin-bottom: 22px; box-shadow: 0 8px 24px rgba(15,23,42,0.18);
+  .layout { display: flex; min-height: 100vh; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: var(--sidebar-w); background: #0f172a; color: #cbd5e1;
+    padding: 24px 16px; position: fixed; top: 0; bottom: 0; left: 0;
+    display: flex; flex-direction: column; gap: 4px; overflow-y: auto;
   }
-  header h1 { font-size: 1.55rem; font-weight: 700; letter-spacing: 0.3px; }
-  header .sub { font-size: 0.85rem; opacity: 0.85; margin-top: 4px; }
-  .actions { display: flex; align-items: center; gap: 12px; }
+  .sidebar .logo {
+    display: flex; align-items: center; gap: 10px; color: #fff;
+    font-weight: 700; font-size: 1.05rem; padding: 6px 10px 20px;
+  }
+  .sidebar .logo .ic { font-size: 1.4rem; }
+  .sidebar .nav-label {
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px;
+    color: #64748b; padding: 14px 10px 6px; font-weight: 600;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    border-radius: 10px; cursor: pointer; font-size: 0.88rem; font-weight: 500;
+    color: #cbd5e1; border: none; background: transparent; text-align: left;
+    transition: background .15s, color .15s;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .nav-item.active { background: var(--brand); color: #fff; }
+  .nav-item .ic { width: 20px; text-align: center; }
+
+  /* ── Conteúdo ── */
+  .content { flex: 1; margin-left: var(--sidebar-w); padding: 28px 30px; }
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 12px; margin-bottom: 22px;
+  }
+  .topbar h1 { font-size: 1.5rem; font-weight: 800; color: var(--ink); }
+  .topbar .sub { font-size: 0.82rem; color: var(--muted); margin-top: 3px; }
+  .topbar .actions { display: flex; align-items: center; gap: 12px; }
   .btn-refresh {
-    background: rgba(255,255,255,0.14); color: #fff; border: 1px solid rgba(255,255,255,0.25);
-    border-radius: 10px; padding: 9px 16px; font-size: 0.82rem; cursor: pointer;
-    font-weight: 600; transition: background .2s;
+    background: var(--brand); color: #fff; border: none; border-radius: 10px;
+    padding: 9px 16px; font-size: 0.82rem; cursor: pointer; font-weight: 600;
+    transition: background .2s;
   }
-  .btn-refresh:hover { background: rgba(255,255,255,0.24); }
-  #status { font-size: 0.78rem; opacity: 0.85; text-align: right; line-height: 1.5; }
+  .btn-refresh:hover { background: var(--brand-dark); }
+  #status { font-size: 0.76rem; color: var(--muted); text-align: right; line-height: 1.4; }
+
+  .tab-page { display: none; }
+  .tab-page.active { display: block; animation: fade .25s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+
   .section {
     background: var(--card); border-radius: 16px; padding: 22px 26px;
     margin-bottom: 20px; box-shadow: 0 1px 3px rgba(15,23,42,0.07); border: 1px solid var(--line);
@@ -48,10 +80,10 @@
   }
   .kpi:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(15,23,42,0.08); }
   .kpi-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); font-weight: 600; }
-  .kpi-value { font-size: 1.5rem; font-weight: 800; color: var(--ink); margin: 8px 0 5px; letter-spacing: -0.5px; }
+  .kpi-value { font-size: 1.45rem; font-weight: 800; color: var(--ink); margin: 8px 0 5px; letter-spacing: -0.5px; }
   .kpi-detail { font-size: 0.72rem; color: var(--muted); }
   .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media (max-width: 920px) { .grid-2col { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) { .grid-2col { grid-template-columns: 1fr; } }
   table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
   th {
     text-align: left; background: var(--slate-bg); color: var(--muted);
@@ -67,73 +99,131 @@
   .st-normal { background: var(--green-bg); color: var(--green); }
   .st-alerta { background: var(--amber-bg); color: var(--amber); }
   .st-critico { background: var(--red-bg); color: var(--red); }
-  .st-livre { background: var(--blue-bg); color: var(--brand-dark); }
+  .st-livre { background: var(--brand-soft); color: var(--brand-dark); }
   .st-aberta { background: var(--slate-bg); color: var(--muted); }
-  .st-recebida { background: var(--green-bg); color: var(--green); }
-  .st-previsto { background: var(--blue-bg); color: var(--brand-dark); }
+  .st-entrada { background: var(--green-bg); color: var(--green); }
+  .st-saida { background: var(--red-bg); color: var(--red); }
   .table-wrap { overflow-x: auto; }
+
+  /* ── Gráfico de barras ── */
+  .chart { display: flex; align-items: flex-end; gap: 14px; height: 240px; padding: 10px 4px 0; }
+  .chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+  .chart-bar-wrap { width: 100%; flex: 1; display: flex; align-items: flex-end; justify-content: center; }
+  .chart-bar {
+    width: 70%; max-width: 46px; border-radius: 6px 6px 0 0; position: relative;
+    transition: height .6s ease; min-height: 2px;
+  }
+  .chart-bar .val {
+    position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+    font-size: 0.66rem; font-weight: 700; color: var(--muted); white-space: nowrap;
+  }
+  .chart-label { font-size: 0.7rem; color: var(--muted); font-weight: 600; }
+  .chart-legend { display: flex; gap: 18px; margin-top: 14px; font-size: 0.75rem; color: var(--muted); flex-wrap: wrap; }
+  .chart-legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
+
   #erro {
     display: none; background: var(--red-bg); color: var(--red); border: 1px solid #fecaca;
     border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; font-size: 0.88rem;
   }
   .footer { text-align: center; color: #94a3b8; font-size: 0.74rem; padding: 18px 0 6px; }
-  @media print {
-    body { background: #fff; padding: 0; }
-    @page { size: A4 landscape; margin: 10mm; }
-    header { border-radius: 0; box-shadow: none; }
-    .btn-refresh { display: none !important; }
-    .section { box-shadow: none; break-inside: avoid; }
-    .grid-2col { grid-template-columns: 1fr 1fr; }
+
+  /* ── Responsivo (celular) ── */
+  @media (max-width: 768px) {
+    .layout { flex-direction: column; }
+    .sidebar {
+      position: static; width: 100%; flex-direction: row; flex-wrap: wrap;
+      padding: 12px; gap: 6px; align-items: center;
+    }
+    .sidebar .logo { padding: 0 8px 0 0; }
+    .sidebar .nav-label { display: none; }
+    .nav-item { padding: 8px 10px; font-size: 0.78rem; }
+    .nav-item .ic { width: auto; }
+    .content { margin-left: 0; padding: 18px 14px; }
+    .chart { height: 200px; }
   }
 </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <div>
-      <h1>💰 Controle Orçamentário</h1>
-      <div class="sub">Matheus Homci · Dashboard pessoal · Dados atualizados da planilha</div>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="logo"><span class="ic">💰</span> Controle</div>
+    <div class="nav-label">Visão Geral</div>
+    <button class="nav-item active" data-tab="resumo"><span class="ic">📌</span> Resumo</button>
+    <button class="nav-item" data-tab="fluxo"><span class="ic">📥</span> Entradas e Saídas</button>
+    <button class="nav-item" data-tab="grafico"><span class="ic">📊</span> Evolução Mensal</button>
+    <div class="nav-label">Cartões</div>
+    <button class="nav-item" data-tab="limites"><span class="ic">💳</span> Limites</button>
+    <button class="nav-item" data-tab="faturas"><span class="ic">🧾</span> Faturas</button>
+    <div class="nav-label">Planejamento</div>
+    <button class="nav-item" data-tab="cronograma"><span class="ic">📅</span> Cronograma</button>
+    <button class="nav-item" data-tab="investimentos"><span class="ic">📈</span> Investimentos</button>
+  </aside>
+
+  <main class="content">
+    <div class="topbar">
+      <div>
+        <h1>💰 Controle Orçamentário</h1>
+        <div class="sub">Matheus Homci · Dashboard pessoal</div>
+      </div>
+      <div class="actions">
+        <button class="btn-refresh" onclick="carregarDados()">↻ Atualizar</button>
+        <div id="status">Carregando…</div>
+      </div>
     </div>
-    <div class="actions">
-      <button class="btn-refresh" onclick="carregarDados()">↻ Atualizar dados</button>
-      <div id="status">Carregando dados…</div>
+
+    <div id="erro"></div>
+
+    <div id="page-resumo" class="tab-page active">
+      <div class="section">
+        <h2>📌 Resumo Geral</h2>
+        <div class="grid-kpis" id="kpis"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
     </div>
-  </header>
 
-  <div id="erro"></div>
-
-  <div class="section">
-    <h2>📌 Resumo Geral</h2>
-    <div class="grid-kpis" id="kpis"><p style="color:#94a3b8">Carregando…</p></div>
-  </div>
-
-  <div class="grid-2col">
-    <div class="section">
-      <h2>💳 Limites dos Cartões</h2>
-      <div class="table-wrap" id="limites"><p style="color:#94a3b8">Carregando…</p></div>
+    <div id="page-fluxo" class="tab-page">
+      <div class="section">
+        <h2>📥 Entradas e Saídas</h2>
+        <div class="table-wrap" id="fluxo"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
     </div>
-    <div class="section">
-      <h2>🧾 Faturas do Mês</h2>
-      <div class="table-wrap" id="faturas"><p style="color:#94a3b8">Carregando…</p></div>
+
+    <div id="page-grafico" class="tab-page">
+      <div class="section">
+        <h2>📊 Evolução Mensal dos Gastos</h2>
+        <div id="grafico"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
     </div>
-  </div>
 
-  <div class="section">
-    <h2>📥 Entradas e Saídas</h2>
-    <div class="table-wrap" id="entradas"><p style="color:#94a3b8">Carregando…</p></div>
-  </div>
+    <div id="page-limites" class="tab-page">
+      <div class="section">
+        <h2>💳 Limites dos Cartões</h2>
+        <div class="table-wrap" id="limites"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
+    </div>
 
-  <div class="section">
-    <h2>📅 Cronograma de Parcelamentos</h2>
-    <div class="table-wrap" id="cronograma"><p style="color:#94a3b8">Carregando…</p></div>
-  </div>
+    <div id="page-faturas" class="tab-page">
+      <div class="section">
+        <h2>🧾 Faturas do Mês</h2>
+        <div class="table-wrap" id="faturas"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
+    </div>
 
-  <div class="section">
-    <h2>📈 Investimentos</h2>
-    <div class="table-wrap" id="investimentos"><p style="color:#94a3b8">Carregando…</p></div>
-  </div>
+    <div id="page-cronograma" class="tab-page">
+      <div class="section">
+        <h2>📅 Cronograma de Parcelamentos</h2>
+        <div class="table-wrap" id="cronograma"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
+    </div>
 
-  <div class="footer">Dados lidos direto do Google Sheets · Atualize a página ou clique em "Atualizar dados"</div>
+    <div id="page-investimentos" class="tab-page">
+      <div class="section">
+        <h2>📈 Investimentos</h2>
+        <div class="table-wrap" id="investimentos"><p style="color:#94a3b8">Carregando…</p></div>
+      </div>
+    </div>
+
+    <div class="footer">Dados lidos direto do Google Sheets · Atualize a página ou clique em "Atualizar"</div>
+  </main>
 </div>
 
 <script>
@@ -142,13 +232,24 @@ const ABAS = {
   resumo:        { gid: '0' },
   limites:       { gid: '541806221' },
   faturas:       { gid: '2070944204' },
-  entradas:      { gid: '1171372127' },
+  fluxo:         { gid: '1171372127' },
   cronograma:    { gid: '1731209628' },
-  investimentos: { gid: '1278202952' }
+  investimentos: { gid: '1278202952' },
+  mensal:        { gid: '1583243318' }
 };
 
-function limparValor(v) { return v == null ? '' : String(v).trim(); }
+// ── Navegação por abas ──
+document.querySelectorAll('.nav-item').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('page-' + btn.dataset.tab).classList.add('active');
+  });
+});
 
+// ── Utilitários ──
+function limparValor(v) { return v == null ? '' : String(v).trim(); }
 function paraNumero(v) {
   if (v == null) return NaN;
   let s = String(v).trim();
@@ -161,48 +262,36 @@ function paraNumero(v) {
   const n = parseFloat(s);
   return isNaN(n) ? NaN : n;
 }
-
 function formatarBRL(n) {
   if (isNaN(n)) return '—';
   return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
-
-// Formata um valor como porcentagem.
-// Aceita: "81,3%", "0.813" (decimal 0-1), "60,30%", "0.603"
 function formatarPercentual(v) {
   if (v == null || v === '') return '—';
   const s = String(v).trim();
-  // Já vem com % ?
   if (/%/.test(s)) {
     const n = paraNumero(s);
     return isNaN(n) ? escapar(s) : n.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%';
   }
   const n = paraNumero(s);
   if (isNaN(n)) return escapar(s);
-  // Se for decimal entre 0 e 1 (exclusive), é fração -> multiplica por 100
-  if (n > 0 && n < 1) {
-    return (n * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%';
-  }
-  // Senão, já é o número direto (ex.: 81.3)
+  if (n > 0 && n < 1) return (n * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%';
   return n.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%';
 }
-
 function escapar(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
-
 function formatarCelula(v) {
   if (v == null) return '';
   const s = String(v).trim();
   const m = s.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})\)$/);
   if (m) {
-    const dia = String(Number(m[3]) + 1).padStart(2, '0');
-    const mes = String(Number(m[2]) + 1).padStart(2, '0');
-    return dia + '/' + mes;
+    return String(Number(m[3]) + 1).padStart(2, '0') + '/' + String(Number(m[2]) + 1).padStart(2, '0');
   }
   return s;
 }
 
+// ── Fonte de dados (JSONP, sem proxy) ──
 let seqJsonp = 0;
 function buscarViaGviz(gid) {
   return new Promise(function (resolve) {
@@ -227,7 +316,6 @@ function buscarViaGviz(gid) {
     document.head.appendChild(s);
   });
 }
-
 function tabelaDeResposta(resposta) {
   if (!resposta || resposta.status !== 'ok' || !resposta.table) return [];
   const linhas = resposta.table.rows || [];
@@ -240,12 +328,12 @@ function tabelaDeResposta(resposta) {
     });
   });
 }
-
 async function obterLinhas(gid) {
   const viaGviz = await buscarViaGviz(gid);
   return tabelaDeResposta(viaGviz);
 }
 
+// ── Renderização ──
 function renderResumo(rows) {
   const cards = [];
   for (let i = 1; i < rows.length; i++) {
@@ -253,15 +341,11 @@ function renderResumo(rows) {
     const rawVal = limparValor(rows[i][1]);
     const detail = limparValor(rows[i][2]);
     if (!label) continue;
-    // Detecta se o campo é percentual: texto tem % OU valor decimal 0-1
     const n = paraNumero(rawVal);
     const isPct = /%/.test(String(rows[i][1] || '')) || (n > 0 && n < 1);
     let display;
-    if (isPct) {
-      display = formatarPercentual(rawVal);
-    } else {
-      display = isNaN(n) ? escapar(rawVal) : formatarBRL(n);
-    }
+    if (isPct) display = formatarPercentual(rawVal);
+    else display = isNaN(n) ? escapar(rawVal) : formatarBRL(n);
     cards.push('<div class="kpi"><div class="kpi-label">' + escapar(label) +
       '</div><div class="kpi-value">' + display +
       '</div><div class="kpi-detail">' + escapar(detail) + '</div></div>');
@@ -271,13 +355,15 @@ function renderResumo(rows) {
 
 function classeStatus(s) {
   const v = String(s || '').toLowerCase();
+  if (v.includes('entrada')) return 'st-entrada';
+  if (v.includes('saída') || v.includes('saida')) return 'st-saida';
   if (v.includes('normal')) return 'st-normal';
   if (v.includes('alert')) return 'st-alerta';
   if (v.includes('crí') || v.includes('crit')) return 'st-critico';
   if (v.includes('livre')) return 'st-livre';
   if (v.includes('abert')) return 'st-aberta';
-  if (v.includes('receb')) return 'st-recebida';
-  if (v.includes('prev')) return 'st-previsto';
+  if (v.includes('receb')) return 'st-entrada';
+  if (v.includes('prev')) return 'st-livre';
   return 'st-aberta';
 }
 
@@ -285,7 +371,6 @@ function montarTabela(head, body) {
   return '<table><thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody></table>';
 }
 
-// renderTabela: genérica, com colunas numéricas e colunas percentuais configuráveis
 function renderTabela(rows, colunasNumericas, colunasPercentuais) {
   if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
   const head = rows[0].map(h => '<th>' + escapar(h) + '</th>').join('');
@@ -303,15 +388,16 @@ function renderTabela(rows, colunasNumericas, colunasPercentuais) {
   return montarTabela(head, body);
 }
 
-function renderStatus(rows, idxStatus) {
+// Entradas e Saídas: coluna Tipo colorida (índice 1) e Valor numérica (índice 2)
+function renderFluxo(rows) {
   if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
   const head = rows[0].map(h => '<th>' + escapar(h) + '</th>').join('');
   const body = rows.slice(1).map(r => {
     return '<tr>' + r.map((c, idx) => {
-      if (idx === idxStatus) {
+      if (idx === 1) {
         return '<td><span class="status ' + classeStatus(c) + '">' + escapar(c) + '</span></td>';
       }
-      if (idx === 1) return '<td class="num">' + formatarBRL(paraNumero(c)) + '</td>';
+      if (idx === 2) return '<td class="num">' + formatarBRL(paraNumero(c)) + '</td>';
       return '<td>' + escapar(formatarCelula(c)) + '</td>';
     }).join('') + '</tr>';
   }).join('');
@@ -333,19 +419,43 @@ function renderCronograma(rows) {
   return montarTabela(head, body);
 }
 
+// Gráfico de barras da evolução mensal
+function renderGrafico(rows) {
+  if (!rows.length) return '<p style="color:#94a3b8">Sem dados</p>';
+  const dados = rows.slice(1).map(r => ({
+    mes: limparValor(r[0]),
+    valor: paraNumero(r[1])
+  })).filter(d => !isNaN(d.valor));
+  if (!dados.length) return '<p style="color:#94a3b8">Sem dados</p>';
+  const max = Math.max.apply(null, dados.map(d => d.valor));
+  const cores = ['#2563eb', '#7c3aed', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16'];
+  const cols = dados.map((d, i) => {
+    const h = Math.max(2, Math.round((d.valor / max) * 100));
+    const cor = cores[i % cores.length];
+    return '<div class="chart-col">' +
+      '<div class="chart-bar-wrap"><div class="chart-bar" style="height:' + h + '%;background:' + cor + '">' +
+      '<span class="val">' + formatarBRL(d.valor) + '</span></div></div>' +
+      '<span class="chart-label">' + escapar(d.mes) + '</span></div>';
+  }).join('');
+  return '<div class="chart">' + cols + '</div>' +
+    '<div class="chart-legend"><span><span class="dot" style="background:#2563eb"></span>Gastos mensais estimados</span></div>';
+}
+
+// ── Orquestrador ──
 async function carregarDados() {
   const statusEl = document.getElementById('status');
   const erroEl = document.getElementById('erro');
   erroEl.style.display = 'none';
-  statusEl.innerHTML = 'Carregando dados…';
+  statusEl.innerHTML = 'Carregando…';
 
   const secoes = [
     { chave: 'resumo',        el: 'kpis',          fn: renderResumo },
     { chave: 'limites',       el: 'limites',       fn: r => renderTabela(r, [1, 2], [3]) },
-    { chave: 'faturas',       el: 'faturas',       fn: r => renderStatus(r, 3) },
-    { chave: 'entradas',      el: 'entradas',      fn: r => renderStatus(r, 3) },
+    { chave: 'faturas',       el: 'faturas',       fn: r => renderTabela(r, [1]) },
+    { chave: 'fluxo',         el: 'fluxo',         fn: renderFluxo },
     { chave: 'cronograma',    el: 'cronograma',    fn: renderCronograma },
-    { chave: 'investimentos', el: 'investimentos', fn: r => renderTabela(r, [1]) }
+    { chave: 'investimentos', el: 'investimentos', fn: r => renderTabela(r, [1]) },
+    { chave: 'mensal',        el: 'grafico',       fn: renderGrafico }
   ];
 
   const resultados = await Promise.all(
@@ -362,13 +472,12 @@ async function carregarDados() {
 
   const ok = resultados.filter(Boolean).length;
   const agora = new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
-
   if (ok === secoes.length) {
     statusEl.innerHTML = '✓ Atualizado: ' + agora;
   } else {
-    statusEl.innerHTML = 'Atualizado: ' + agora + '<br><span style="color:#fca5a5">' + (secoes.length - ok) + ' de ' + secoes.length + ' seções falharam</span>';
+    statusEl.innerHTML = 'Atualizado: ' + agora + '<br><span style="color:#fca5a5">' + (secoes.length - ok) + ' de ' + secoes.length + ' falharam</span>';
     erroEl.style.display = 'block';
-    erroEl.innerHTML = '⚠️ Não foi possível carregar ' + (secoes.length - ok) + ' de ' + secoes.length + ' seções. Clique em "Atualizar dados" para tentar de novo.';
+    erroEl.innerHTML = '⚠️ Não foi possível carregar ' + (secoes.length - ok) + ' de ' + secoes.length + ' seções. Clique em "Atualizar" para tentar de novo.';
   }
 }
 
