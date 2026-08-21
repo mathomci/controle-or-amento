@@ -188,7 +188,7 @@ footer{text-align:center;color:var(--txt2);font-size:11px;margin-top:44px;paddin
         <span class="nav-arrow">→</span>
         <div class="nav-icon" style="background:linear-gradient(135deg,rgba(167,139,250,.25),rgba(167,139,250,.05))">💳</div>
         <h3>Gestão de Crédito</h3>
-        <p>Limites, uso por cartão e status de cada bandeira.</p>
+        <p>Limites, uso por cartão, pagamento efetuado e desfazer.</p>
       </button>
       <button class="nav-card" onclick="go('faturas')">
         <span class="nav-arrow">→</span>
@@ -465,6 +465,10 @@ function renderCredit(){
       <div class="prog"><div class="prog-fill" style="width:${Math.min(100,uso)}%;background:${color}"></div></div>
       <div class="lim"><span>Uso: ${uso.toFixed(1).replace('.',',')}%</span>
       <span>Disp: ${disp!==null?fmtBRL(disp):'—'} / ${total!==null?fmtBRL(total):'—'}</span></div>
+      <div style="display:flex;gap:8px;margin-top:12px;position:relative;flex-wrap:wrap">
+        <button class="btn" style="padding:6px 12px;font-size:12px" onclick="pagarCartao('${esc(name)}')">✓ Pagamento efetuado</button>
+        <button class="btn" style="padding:6px 12px;font-size:12px;color:var(--orange);border-color:rgba(251,146,60,.4)" onclick="desfazerPagamento('${esc(name)}')">↩ Desfazer</button>
+      </div>
     </div>`;
   });
   document.getElementById('ccGrid').innerHTML=html;
@@ -492,6 +496,10 @@ function renderFaturas(){
         <td>${esc(cell(r,2))}</td><td>${esc(cell(r,3))}</td></tr>`;
     });
     t+=`<tr class="hl"><td>TOTAL</td><td>${fmtBRL(sum)}</td><td></td><td></td></tr></tbody></table></div>`;
+    t+=`<div style="display:flex;gap:8px;margin:12px 0 20px;flex-wrap:wrap">
+      <button class="btn" style="padding:6px 12px;font-size:12px" onclick="pagarCartao('${esc(name)}')">✓ Pagamento efetuado — ${esc(name)}</button>
+      <button class="btn" style="padding:6px 12px;font-size:12px;color:var(--orange);border-color:rgba(251,146,60,.4)" onclick="desfazerPagamento('${esc(name)}')">↩ Desfazer pagamento</button>
+    </div>`;
     out+=t;
   });
   document.getElementById('faturasContent').innerHTML=out;
@@ -566,7 +574,7 @@ function toggleParcelamento(){
   document.getElementById('parcelaFields').style.display = sim ? 'grid' : 'none';
 }
 /* ================= NOVO LANÇAMENTO ================= */
-const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbw2sV_Ce1CeUIXzZ0XH-wtf_Kaj2XnLEiLFgEByBM-myhQiSlluEANXguL9fv0xvk7Grg/exec';
+const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbxYDEgDpgJdZnwjTT4KbN7kltyF7AF7xxIULZgdGGini93fjEAZR9yPCWpQezvrPKJgRw/exec';
 document.getElementById('formLancamento').addEventListener('submit', function(e){
   e.preventDefault();
   var statusEl = document.getElementById('status');
@@ -622,6 +630,33 @@ function cancelarLancamento(id){
     }, 3000);
   }).catch(function(){
     statusEl.className='err'; statusEl.textContent='❌ Erro ao cancelar. Tente novamente.';
+  });
+}
+/* ================= PAGAMENTO EFETUADO / DESFAZER ================= */
+function pagarCartao(cartao){
+  if(!confirm('Confirmar pagamento da fatura ' + cartao + '? A fatura será zerada, a próxima será montada com os gastos fixos e o limite será liberado.')) return;
+  var btn = event.target; if(btn) btn.disabled = true;
+  fetch(URL_SCRIPT, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({ action:'pagar', cartao:cartao })
+  }).then(function(){
+    setTimeout(function(){ loadAll(); if(btn) btn.disabled = false; }, 3500);
+  }).catch(function(){
+    alert('Erro ao registrar pagamento. Tente novamente.');
+    if(btn) btn.disabled = false;
+  });
+}
+function desfazerPagamento(cartao){
+  if(!confirm('Desfazer o último pagamento de ' + cartao + '? Disponível por até 2 dias.')) return;
+  fetch(URL_SCRIPT, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({ action:'desfazer', cartao:cartao })
+  }).then(function(){
+    setTimeout(function(){ loadAll(); }, 3500);
+  }).catch(function(){
+    alert('Erro ao desfazer pagamento. Tente novamente.');
   });
 }
 /* ================= NAV ================= */
